@@ -1,5 +1,7 @@
-package batalhanaval;
+package batalhanaval.telas;
 
+import batalhanaval.BatalhaNavalMain;
+import batalhanaval.tabuleiros.TabuleiroPronto;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -13,7 +15,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
-public class BatalhaTela extends Tabuleiro{
+public class BatalhaTela extends TabuleiroPronto{
     
     public void iniciarTela(String ip, String nomeUsuario) {
         BorderPane root = new BorderPane();

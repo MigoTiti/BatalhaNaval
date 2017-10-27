@@ -1,7 +1,13 @@
 package batalhanaval;
 
+import batalhanaval.telas.BatalhaTela;
+import batalhanaval.telas.PreparacaoTela;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.geometry.Insets;
@@ -56,13 +62,14 @@ public class BatalhaNavalMain extends JApplet {
         fxContainer = new JFXPanel();
         fxContainer.setPreferredSize(new Dimension(JFXPANEL_WIDTH_INT, JFXPANEL_HEIGHT_INT));
         add(fxContainer, BorderLayout.CENTER);
-        // create JavaFX scene
-        Platform.runLater(this::createScene);
+        
+        Platform.runLater(BatalhaNavalMain::createScene);
     }
     
-    private void createScene() {
-        
+    public static void createScene() {
         BorderPane root = new BorderPane();
+        
+        //String ip = InetAddress.getLocalHost().getHostAddress();
         
         HBox hboxCentro = new HBox();
         hboxCentro.setPadding(new Insets(15, 12, 15, 12));
@@ -105,7 +112,7 @@ public class BatalhaNavalMain extends JApplet {
         Button acharPartidaButton = new Button("Conectar");
         acharPartidaButton.setOnAction((ActionEvent) -> {
             nickName = nomeUsuario.getText();
-            new BatalhaTela().iniciarTela(ipServidorPrimeiroOcteto.getText() + "." + ipServidorSegundoOcteto.getText() + "." + ipServidorTerceiroOcteto.getText() + "." + ipServidorQuartoOcteto.getText(), nickName);
+            new PreparacaoTela().iniciarTela(ipServidorPrimeiroOcteto.getText() + "." + ipServidorSegundoOcteto.getText() + "." + ipServidorTerceiroOcteto.getText() + "." + ipServidorQuartoOcteto.getText(), nickName);
         });
         
         hboxCentro.getChildren().addAll(helpText, ipServidorPrimeiroOcteto, helpText2, ipServidorSegundoOcteto, helpText3, ipServidorTerceiroOcteto, helpText4, ipServidorQuartoOcteto, acharPartidaButton);
