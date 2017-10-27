@@ -3,8 +3,10 @@ package batalhanaval.telas;
 import batalhanaval.BatalhaNavalMain;
 import batalhanaval.tabuleiros.TabuleiroPreparacao;
 import batalhanaval.util.RectangleCoordenado;
+import java.net.URL;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.ClipboardContent;
@@ -21,12 +23,19 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 public class PreparacaoTela extends TabuleiroPreparacao {
 
@@ -39,6 +48,8 @@ public class PreparacaoTela extends TabuleiroPreparacao {
     private final Text ntContagemText;
     private final Text ctContagemText;
     private final Text subContagemText;
+
+    MediaPlayer oracleVid;
 
     public PreparacaoTela() {
         paContagem = 1;
@@ -74,7 +85,6 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         //iniciar.setAlignment(Pos.CENTER_RIGHT);
 
         campo = new GridPane();
-        //campo.setGridLinesVisible(true);
         campo.setAlignment(Pos.CENTER);
 
         for (int i = 0; i < TAMANHO; i++) {
@@ -94,7 +104,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
 
         GridPane telaSelecao = new GridPane();
         telaSelecao.setAlignment(Pos.CENTER);
-        telaSelecao.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+        //telaSelecao.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
         telaSelecao.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(3))));
         telaSelecao.setGridLinesVisible(true);
 
@@ -167,10 +177,37 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         telaSelecao.add(b3, 0, 2);
         telaSelecao.add(b4, 0, 3);
 
+        VBox vBoxCentro = new VBox();
+        vBoxCentro.setAlignment(Pos.CENTER);
+        vBoxCentro.getChildren().addAll(campo);
+
+        HBox hBoxCentro = new HBox();
+        hBoxCentro.setAlignment(Pos.CENTER);
+        hBoxCentro.getChildren().addAll(vBoxCentro);
+        //campo.setStyle("-fx-background-image: url('" + imagem + "');");
+
+        oracleVid = new MediaPlayer(
+                new Media(getVideo().toString())
+        );
+
+        oracleVid.setMute(true);
+        oracleVid.setCycleCount(MediaPlayer.INDEFINITE);
+        oracleVid.play();
+
+        MediaView mv = new MediaView(oracleVid);
+        mv.setFitHeight(TAMANHO * TAMANHO_CELULA);
+
+        StackPane stackPane = new StackPane(mv, hBoxCentro);
+
+        Rectangle clipRect = new Rectangle(TAMANHO * TAMANHO_CELULA, 1000);
+        clipRect.setTranslateX(227);
+
+        stackPane.setClip(clipRect);
+
         vBoxDireita.getChildren().addAll(telaSelecao);
         hBoxTop.getChildren().addAll(voltar, helpText, iniciar);
 
-        root.setCenter(campo);
+        root.setCenter(stackPane);
         root.setTop(hBoxTop);
         root.setRight(vBoxDireita);
 
@@ -178,24 +215,32 @@ public class PreparacaoTela extends TabuleiroPreparacao {
     }
 
     private RectangleCoordenado gerarRect(int x, int y) {
-        RectangleCoordenado rect = new RectangleCoordenado(x, y, TAMANHO_CELULA - 1, TAMANHO_CELULA - 1, Color.WHITE);
-        rect.setStroke(Color.BLACK);
+        RectangleCoordenado rect = new RectangleCoordenado(x, y, TAMANHO_CELULA - 1, TAMANHO_CELULA - 1, Color.TRANSPARENT);
+        rect.setStroke(Color.ORANGE);
         rect.setStrokeWidth(1);
 
         rect.setOnDragEntered((event) -> {
             String tamanho = event.getDragboard().getString();
-            System.out.println(tamanho + " entrou");
             event.consume();
         });
 
         rect.setOnDragExited((event) -> {
             String tamanho = event.getDragboard().getString();
-            System.out.println(tamanho + " saiu");
             event.consume();
         });
 
         rect.setOnDragOver((event) -> {
-            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            boolean aceita = true;
+            int tamanho = Integer.parseInt(event.getDragboard().getString());
+
+            if ((rect.getxCoordenada() + tamanho) > (TabuleiroPreparacao.TAMANHO)) {
+                aceita = false;
+            }
+
+            if (aceita) {
+                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            }
+
             event.consume();
         });
 
@@ -222,6 +267,14 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         });
 
         return rect;
+    }
+
+    private URL getVideo() {
+        return getClass().getResource("recursos/backgroundloop.mp4");
+    }
+
+    private void previewBarco(int x, int y, int tamanho) {
+
     }
 
     private void decrementarPaContador() {

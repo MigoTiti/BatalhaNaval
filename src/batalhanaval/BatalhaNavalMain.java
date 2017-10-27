@@ -13,10 +13,12 @@ import javafx.embed.swing.JFXPanel;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -28,7 +30,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 public class BatalhaNavalMain extends JApplet {
-    
+
     private static final int JFXPANEL_WIDTH_INT = 1000;
     private static final int JFXPANEL_HEIGHT_INT = 700;
     public static JFXPanel fxContainer;
@@ -40,45 +42,45 @@ public class BatalhaNavalMain extends JApplet {
                 UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
             }
-            
+
             JFrame frame = new JFrame("BATALHA DOS BARCO");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            
+
             JApplet applet = new BatalhaNavalMain();
             applet.init();
-            
+
             frame.setContentPane(applet.getContentPane());
-            
+
             frame.pack();
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
-            
+
             applet.start();
         });
     }
-    
+
     @Override
     public void init() {
         fxContainer = new JFXPanel();
         fxContainer.setPreferredSize(new Dimension(JFXPANEL_WIDTH_INT, JFXPANEL_HEIGHT_INT));
         add(fxContainer, BorderLayout.CENTER);
-        
+
         Platform.runLater(BatalhaNavalMain::createScene);
     }
-    
+
     public static void createScene() {
         BorderPane root = new BorderPane();
-        
+
         //String ip = InetAddress.getLocalHost().getHostAddress();
-        
-        HBox hboxCentro = new HBox();
-        hboxCentro.setPadding(new Insets(15, 12, 15, 12));
-        hboxCentro.setSpacing(10);
-        
+        VBox vBoxCentro = new VBox();
+
+        HBox hboxCentro2 = new HBox(10);
+        hboxCentro2.setPadding(new Insets(15, 12, 15, 12));
+
         Text helpText = new Text("Endereço IP do servidor: ");
         helpText.setFill(Color.BLACK);
         helpText.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
-        
+
         Text helpText2 = new Text(".");
         helpText2.setFill(Color.BLACK);
         helpText2.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
@@ -88,41 +90,62 @@ public class BatalhaNavalMain extends JApplet {
         Text helpText4 = new Text(".");
         helpText4.setFill(Color.BLACK);
         helpText4.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
-        
-        TextField ipServidorPrimeiroOcteto = new TextField();
-        TextField ipServidorSegundoOcteto = new TextField();
-        TextField ipServidorTerceiroOcteto = new TextField();
-        TextField ipServidorQuartoOcteto = new TextField();
-        
+
+        TextField ipServidorPrimeiroOcteto = new TextField("127");
+        TextField ipServidorSegundoOcteto = new TextField("0");
+        TextField ipServidorTerceiroOcteto = new TextField("0");
+        TextField ipServidorQuartoOcteto = new TextField("1");
+
         int tamanhoCampo = 40;
         ipServidorPrimeiroOcteto.setPrefWidth(tamanhoCampo);
         ipServidorSegundoOcteto.setPrefWidth(tamanhoCampo);
         ipServidorTerceiroOcteto.setPrefWidth(tamanhoCampo);
         ipServidorQuartoOcteto.setPrefWidth(tamanhoCampo);
 
-        HBox hboxTop = new HBox();
-        hboxTop.setPadding(new Insets(15, 12, 15, 12));
-        hboxTop.setSpacing(10);
-        
+        HBox hboxCentro1 = new HBox(10);
+        hboxCentro1.setPadding(new Insets(15, 12, 15, 12));
+
         Text helpText6 = new Text("Nome de usuário: ");
         helpText6.setFill(Color.BLACK);
         helpText6.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
-        TextField nomeUsuario = new TextField();
-        
+        TextField nomeUsuario = new TextField("MigoTiti");
+
         Button acharPartidaButton = new Button("Conectar");
         acharPartidaButton.setOnAction((ActionEvent) -> {
-            nickName = nomeUsuario.getText();
-            new PreparacaoTela().iniciarTela(ipServidorPrimeiroOcteto.getText() + "." + ipServidorSegundoOcteto.getText() + "." + ipServidorTerceiroOcteto.getText() + "." + ipServidorQuartoOcteto.getText(), nickName);
+            if (nomeUsuario.getText() != null && !nomeUsuario.getText().equals("")) {
+                nickName = nomeUsuario.getText();
+                new PreparacaoTela().iniciarTela(ipServidorPrimeiroOcteto.getText() + "." + ipServidorSegundoOcteto.getText() + "." + ipServidorTerceiroOcteto.getText() + "." + ipServidorQuartoOcteto.getText(), nickName);
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erro");
+                alert.setHeaderText(null);
+                alert.setContentText("Digite um nome de usuário");
+                alert.showAndWait();
+            }
         });
+
+        hboxCentro2.getChildren().addAll(helpText, ipServidorPrimeiroOcteto, helpText2, ipServidorSegundoOcteto, helpText3, ipServidorTerceiroOcteto, helpText4, ipServidorQuartoOcteto, acharPartidaButton);
+        hboxCentro1.getChildren().addAll(helpText6, nomeUsuario);
+        hboxCentro1.setAlignment(Pos.CENTER);
+        hboxCentro2.setAlignment(Pos.CENTER);
         
-        hboxCentro.getChildren().addAll(helpText, ipServidorPrimeiroOcteto, helpText2, ipServidorSegundoOcteto, helpText3, ipServidorTerceiroOcteto, helpText4, ipServidorQuartoOcteto, acharPartidaButton);
-        hboxTop.getChildren().addAll(helpText6, nomeUsuario);
-        hboxTop.setAlignment(Pos.CENTER);
-        hboxCentro.setAlignment(Pos.CENTER);
-        root.setTop(hboxTop);
-        root.setCenter(hboxCentro);
+        HBox hboxCentro3 = new HBox(10);
+        hboxCentro3.setPadding(new Insets(15, 12, 15, 12));
+        hboxCentro3.setAlignment(Pos.CENTER);
         
+        Button criarPartidaButton = new Button("Criar partida");
+        criarPartidaButton.setOnAction((event -> {
+            
+        }));
+        
+        hboxCentro3.getChildren().addAll(criarPartidaButton);
+
+        vBoxCentro.setAlignment(Pos.CENTER);
+        vBoxCentro.getChildren().addAll(hboxCentro1, hboxCentro2, hboxCentro3);
+
+        root.setCenter(vBoxCentro);
+
         fxContainer.setScene(new Scene(root));
     }
-    
+
 }
