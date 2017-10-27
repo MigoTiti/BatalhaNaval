@@ -6,14 +6,12 @@ import batalhanaval.util.RectangleCoordenado;
 import java.net.URL;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
@@ -23,7 +21,6 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -31,6 +28,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -49,7 +47,9 @@ public class PreparacaoTela extends TabuleiroPreparacao {
     private final Text ctContagemText;
     private final Text subContagemText;
 
-    MediaPlayer oracleVid;
+    Rectangle preview;
+    HBox hBoxVideo;
+    StackPane stackPane;
 
     public PreparacaoTela() {
         paContagem = 1;
@@ -186,23 +186,30 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         hBoxCentro.getChildren().addAll(vBoxCentro);
         //campo.setStyle("-fx-background-image: url('" + imagem + "');");
 
-        oracleVid = new MediaPlayer(
+        MediaPlayer oracleVid = new MediaPlayer(
                 new Media(getVideo().toString())
         );
 
         oracleVid.setMute(true);
         oracleVid.setCycleCount(MediaPlayer.INDEFINITE);
         oracleVid.play();
+        oracleVid.setStartTime(Duration.seconds(0));
+        oracleVid.setStopTime(Duration.seconds(17.5));
 
         MediaView mv = new MediaView(oracleVid);
         mv.setFitHeight(TAMANHO * TAMANHO_CELULA);
 
-        StackPane stackPane = new StackPane(mv, hBoxCentro);
+        hBoxVideo = new HBox(mv);
+        hBoxVideo.setAlignment(Pos.CENTER);
+
+        stackPane = new StackPane(hBoxVideo, hBoxCentro);
 
         Rectangle clipRect = new Rectangle(TAMANHO * TAMANHO_CELULA, 1000);
         clipRect.setTranslateX(227);
 
+        //clipRect.setTranslateY(227);
         stackPane.setClip(clipRect);
+        stackPane.setAlignment(Pos.TOP_LEFT);
 
         vBoxDireita.getChildren().addAll(telaSelecao);
         hBoxTop.getChildren().addAll(voltar, helpText, iniciar);
@@ -220,22 +227,45 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         rect.setStrokeWidth(1);
 
         rect.setOnDragEntered((event) -> {
-            String tamanho = event.getDragboard().getString();
+            int tamanho = Integer.parseInt(event.getDragboard().getString());
+
+            boolean aceita = (rect.getxCoordenada() + tamanho) <= (TabuleiroPreparacao.TAMANHO);
+
+            if (aceita) {
+                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            }
+            
+            if (aceita) {
+                if (tamanho == 5) {
+                    preview = new Rectangle(rect.getLayoutX(), rect.getLayoutY(), (TAMANHO_CELULA - 1) * 5, TAMANHO_CELULA - 1);
+                    preview.setFill(new ImagePattern(new Image(getPortaAvioes().toString())));
+                    preview.setTranslateX((TAMANHO_CELULA * (rect.getxCoordenada() + 5)) + 30);
+                    preview.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
+                    stackPane.getChildren().add(preview);
+                    preview.toBack();
+                    hBoxVideo.toBack();
+                }
+            } else {
+                stackPane.getChildren().remove(preview);
+                preview = null;
+            }
+
             event.consume();
         });
 
         rect.setOnDragExited((event) -> {
             String tamanho = event.getDragboard().getString();
+
+            stackPane.getChildren().remove(preview);
+            preview = null;
+            
             event.consume();
         });
 
         rect.setOnDragOver((event) -> {
-            boolean aceita = true;
             int tamanho = Integer.parseInt(event.getDragboard().getString());
 
-            if ((rect.getxCoordenada() + tamanho) > (TabuleiroPreparacao.TAMANHO)) {
-                aceita = false;
-            }
+            boolean aceita = (rect.getxCoordenada() + tamanho) <= (TabuleiroPreparacao.TAMANHO);
 
             if (aceita) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
@@ -270,6 +300,22 @@ public class PreparacaoTela extends TabuleiroPreparacao {
     }
 
     private URL getVideo() {
+        return getClass().getResource("recursos/backgroundloop.mp4");
+    }
+
+    private URL getPortaAvioes() {
+        return getClass().getResource("recursos/carrier.PNG");
+    }
+
+    private URL getNavioTanque() {
+        return getClass().getResource("recursos/backgroundloop.mp4");
+    }
+
+    private URL getContraTorpedo() {
+        return getClass().getResource("recursos/backgroundloop.mp4");
+    }
+
+    private URL getSubmarino() {
         return getClass().getResource("recursos/backgroundloop.mp4");
     }
 
