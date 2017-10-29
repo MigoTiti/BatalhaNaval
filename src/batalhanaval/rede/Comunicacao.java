@@ -1,7 +1,6 @@
 package batalhanaval.rede;
 
 import batalhanaval.enums.ComandosNet;
-import batalhanaval.telas.BatalhaTela;
 import batalhanaval.telas.PreparacaoTela;
 import java.io.IOException;
 import java.net.DatagramPacket;
