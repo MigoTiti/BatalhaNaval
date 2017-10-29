@@ -1,6 +1,5 @@
 package batalhanaval;
 
-import batalhanaval.telas.BatalhaTela;
 import batalhanaval.telas.ConectarTela;
 import batalhanaval.telas.CriarPartidaTela;
 import java.awt.BorderLayout;

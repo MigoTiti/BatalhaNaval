@@ -49,7 +49,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
     private int ctContagem;
     private int subContagem;
     
-    private int contagemTotal;
+    private final int contagemTotal;
 
     private final Text paContagemText;
     private final Text ntContagemText;
