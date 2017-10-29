@@ -1,13 +1,10 @@
 package batalhanaval;
 
 import batalhanaval.telas.BatalhaTela;
-import batalhanaval.telas.PreparacaoTela;
+import batalhanaval.telas.ConectarTela;
+import batalhanaval.telas.CriarPartidaTela;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.geometry.Insets;
@@ -33,6 +30,7 @@ public class BatalhaNavalMain extends JApplet {
 
     private static final int JFXPANEL_WIDTH_INT = 1000;
     private static final int JFXPANEL_HEIGHT_INT = 700;
+    public static final int PORTA_PADRAO = 12345;
     public static JFXPanel fxContainer;
     public static String nickName;
 
@@ -71,8 +69,6 @@ public class BatalhaNavalMain extends JApplet {
 
     public static void createScene() {
         BorderPane root = new BorderPane();
-
-        //String ip = InetAddress.getLocalHost().getHostAddress();
         VBox vBoxCentro = new VBox();
 
         HBox hboxCentro2 = new HBox(10);
@@ -115,13 +111,9 @@ public class BatalhaNavalMain extends JApplet {
         acharPartidaButton.setOnAction((ActionEvent) -> {
             if (nomeUsuario.getText() != null && !nomeUsuario.getText().equals("")) {
                 nickName = nomeUsuario.getText();
-                new PreparacaoTela().iniciarTela(ipServidorPrimeiroOcteto.getText() + "." + ipServidorSegundoOcteto.getText() + "." + ipServidorTerceiroOcteto.getText() + "." + ipServidorQuartoOcteto.getText(), nickName);
+                new ConectarTela().iniciarTela(ipServidorPrimeiroOcteto.getText() + "." + ipServidorSegundoOcteto.getText() + "." + ipServidorTerceiroOcteto.getText() + "." + ipServidorQuartoOcteto.getText(), nickName);
             } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Erro");
-                alert.setHeaderText(null);
-                alert.setContentText("Digite um nome de usuário");
-                alert.showAndWait();
+                enviarMensagemErro("Digite um nome de usuário");
             }
         });
 
@@ -129,16 +121,22 @@ public class BatalhaNavalMain extends JApplet {
         hboxCentro1.getChildren().addAll(helpText6, nomeUsuario);
         hboxCentro1.setAlignment(Pos.CENTER);
         hboxCentro2.setAlignment(Pos.CENTER);
-        
+
         HBox hboxCentro3 = new HBox(10);
         hboxCentro3.setPadding(new Insets(15, 12, 15, 12));
         hboxCentro3.setAlignment(Pos.CENTER);
-        
+
         Button criarPartidaButton = new Button("Criar partida");
         criarPartidaButton.setOnAction((event -> {
-            
+            if (nomeUsuario.getText() != null && !nomeUsuario.getText().equals("")) {
+                nickName = nomeUsuario.getText();
+                //new BatalhaTela().iniciarTela();
+                new CriarPartidaTela().iniciarTela();
+            } else {
+                enviarMensagemErro("Digite um nome de usuário");
+            }
         }));
-        
+
         hboxCentro3.getChildren().addAll(criarPartidaButton);
 
         vBoxCentro.setAlignment(Pos.CENTER);
@@ -149,4 +147,11 @@ public class BatalhaNavalMain extends JApplet {
         fxContainer.setScene(new Scene(root));
     }
 
+    public static void enviarMensagemErro(String mensagem) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Erro");
+        alert.setHeaderText(null);
+        alert.setContentText(mensagem);
+        alert.showAndWait();
+    }
 }

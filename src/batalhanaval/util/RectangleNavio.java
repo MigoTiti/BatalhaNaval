@@ -4,7 +4,7 @@ import javafx.scene.paint.Paint;
 
 public class RectangleNavio extends RectangleCoordenado{
     
-    private int tamanho;
+    private final int tamanho;
 
     public RectangleNavio(double x1, double y1, int x, int y, double width, double height, Paint fill, int tamanho) {
         super(x, y, width, height, fill);
