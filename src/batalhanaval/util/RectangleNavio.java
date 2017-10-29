@@ -31,5 +31,8 @@ public class RectangleNavio extends RectangleCoordenado{
         
         return 90;
     }
-    
+
+    public int getTamanho() {
+        return tamanho;
+    }
 }

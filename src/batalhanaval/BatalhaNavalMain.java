@@ -154,4 +154,12 @@ public class BatalhaNavalMain extends JApplet {
         alert.setContentText(mensagem);
         alert.showAndWait();
     }
+    
+    public static void enviarMensagemInfo(String mensagem) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Info");
+        alert.setHeaderText(null);
+        alert.setContentText(mensagem);
+        alert.showAndWait();
+    }
 }

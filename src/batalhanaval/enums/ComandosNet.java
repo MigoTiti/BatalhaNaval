@@ -2,7 +2,7 @@ package batalhanaval.enums;
 
 public enum ComandosNet {
     
-    CONECTADO("1"), PRONTO("2"), DESCONECTAR("3"), JOGADA("4");
+    CONECTADO("1"), PRONTO("2"), DESCONECTAR("3"), JOGADA("4"), REPORTAR_JOGADA("5"), NAO_PRONTO("6");
     
     public String comando;
 
@@ -12,5 +12,10 @@ public enum ComandosNet {
     
     public byte[] getBytes() {
         return this.comando.getBytes();
+    }
+
+    @Override
+    public String toString() {
+        return this.comando;
     }
 }

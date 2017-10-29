@@ -7,7 +7,6 @@ import static batalhanaval.rede.Comunicacao.socket;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.geometry.Insets;
@@ -71,6 +70,7 @@ public class CriarPartidaTela {
             socket.send(pacoteResposta);
 
             new PreparacaoTela().iniciarTela();
+            Comunicacao.vezDoUsuario = true;
             Comunicacao.conexaoAberta = true;
             Comunicacao.persistirConexao();
         } catch (IOException ex) {

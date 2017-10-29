@@ -48,6 +48,8 @@ public class PreparacaoTela extends TabuleiroPreparacao {
     private int ntContagem;
     private int ctContagem;
     private int subContagem;
+    
+    private int contagemTotal;
 
     private final Text paContagemText;
     private final Text ntContagemText;
@@ -68,6 +70,8 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         ntContagem = 1;
         ctContagem = 1;
         subContagem = 1;
+        
+        contagemTotal = (paContagem * 5) + (ntContagem * 4) + (ctContagem * 3) + (subContagem * 2);
         
         navios = new HashSet<>();
 
@@ -95,7 +99,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
             if (paContagem == 0 && ntContagem == 0 && ctContagem == 0 && subContagem == 0) {
                 new Thread(() -> {
                     Comunicacao.enviarMensagem(ComandosNet.PRONTO.comando);
-                    new BatalhaTela().iniciarTela(navios);
+                    new BatalhaTela().iniciarTela(navios, contagemTotal);
                 }).start();
             } else {
                 BatalhaNavalMain.enviarMensagemErro("Posicione todos os navios");
