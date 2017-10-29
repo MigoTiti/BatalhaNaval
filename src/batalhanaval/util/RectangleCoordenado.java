@@ -5,14 +5,19 @@ import javafx.scene.shape.Rectangle;
 
 public class RectangleCoordenado extends Rectangle{
     
-    private int xCoordenada;
-    private int yCoordenada;
-    private boolean ocupado = false;
+    protected int xCoordenada;
+    protected int yCoordenada;
+    protected boolean ocupado = false;
+    protected int rotacao = 1;
 
     public RectangleCoordenado(int x, int y, double width, double height, Paint fill) {
         super(width, height, fill);
         this.xCoordenada = x;
         this.yCoordenada = y;
+    }
+    
+    public RectangleCoordenado(double x, double y, double width, double height) {
+        super(x, y, width, height);
     }
 
     public int getxCoordenada() {
@@ -38,4 +43,13 @@ public class RectangleCoordenado extends Rectangle{
     public boolean isOcupado() {
         return ocupado;
     }
+
+    public int getRotacao() {
+        return rotacao;
+    }
+
+    public void setRotacao(int rotacao) {
+        this.rotacao = rotacao;
+    }
+    
 }

@@ -3,13 +3,16 @@ package batalhanaval.telas;
 import batalhanaval.BatalhaNavalMain;
 import batalhanaval.tabuleiros.TabuleiroPreparacao;
 import batalhanaval.util.RectangleCoordenado;
+import batalhanaval.util.RectangleNavio;
 import java.net.URL;
+import java.util.Set;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Border;
@@ -33,6 +36,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 
 public class PreparacaoTela extends TabuleiroPreparacao {
@@ -50,6 +54,8 @@ public class PreparacaoTela extends TabuleiroPreparacao {
     Rectangle preview;
     HBox hBoxVideo;
     StackPane stackPane;
+
+    Set<RectangleNavio> navios;
 
     public PreparacaoTela() {
         paContagem = 1;
@@ -81,11 +87,11 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         voltar.setOnAction((ActionEvent) -> {
             BatalhaNavalMain.createScene();
         });
-        //voltar.setAlignment(Pos.CENTER_LEFT);
-        //iniciar.setAlignment(Pos.CENTER_RIGHT);
 
         campo = new GridPane();
         campo.setAlignment(Pos.CENTER);
+
+        campoMatriz = new RectangleCoordenado[TAMANHO][TAMANHO];
 
         for (int i = 0; i < TAMANHO; i++) {
             campo.getColumnConstraints().add(new ColumnConstraints(TAMANHO_CELULA));
@@ -94,7 +100,9 @@ public class PreparacaoTela extends TabuleiroPreparacao {
 
         for (int i = 0; i < TAMANHO; i++) {
             for (int j = 0; j < TAMANHO; j++) {
-                campo.add(gerarRect(i, j), i, j);
+                RectangleCoordenado rect = gerarRect(i, j);
+                campo.add(rect, i, j);
+                campoMatriz[i][j] = rect;
             }
         }
 
@@ -104,7 +112,6 @@ public class PreparacaoTela extends TabuleiroPreparacao {
 
         GridPane telaSelecao = new GridPane();
         telaSelecao.setAlignment(Pos.CENTER);
-        //telaSelecao.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
         telaSelecao.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(3))));
         telaSelecao.setGridLinesVisible(true);
 
@@ -184,7 +191,6 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         HBox hBoxCentro = new HBox();
         hBoxCentro.setAlignment(Pos.CENTER);
         hBoxCentro.getChildren().addAll(vBoxCentro);
-        //campo.setStyle("-fx-background-image: url('" + imagem + "');");
 
         MediaPlayer oracleVid = new MediaPlayer(
                 new Media(getVideo().toString())
@@ -194,7 +200,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         oracleVid.setCycleCount(MediaPlayer.INDEFINITE);
         oracleVid.play();
         oracleVid.setStartTime(Duration.seconds(0));
-        oracleVid.setStopTime(Duration.seconds(17.5));
+        oracleVid.setStopTime(Duration.seconds(19));
 
         MediaView mv = new MediaView(oracleVid);
         mv.setFitHeight(TAMANHO * TAMANHO_CELULA);
@@ -205,9 +211,8 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         stackPane = new StackPane(hBoxVideo, hBoxCentro);
 
         Rectangle clipRect = new Rectangle(TAMANHO * TAMANHO_CELULA, 1000);
-        clipRect.setTranslateX(227);
+        clipRect.setTranslateX(232);
 
-        //clipRect.setTranslateY(227);
         stackPane.setClip(clipRect);
         stackPane.setAlignment(Pos.TOP_LEFT);
 
@@ -234,16 +239,45 @@ public class PreparacaoTela extends TabuleiroPreparacao {
             if (aceita) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
-            
+
             if (aceita) {
-                if (tamanho == 5) {
-                    preview = new Rectangle(rect.getLayoutX(), rect.getLayoutY(), (TAMANHO_CELULA - 1) * 5, TAMANHO_CELULA - 1);
-                    preview.setFill(new ImagePattern(new Image(getPortaAvioes().toString())));
-                    preview.setTranslateX((TAMANHO_CELULA * (rect.getxCoordenada() + 5)) + 30);
-                    preview.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
-                    stackPane.getChildren().add(preview);
-                    preview.toBack();
-                    hBoxVideo.toBack();
+                switch (tamanho) {
+                    case 5:
+                        preview = new Rectangle(rect.getLayoutX(), rect.getLayoutY(), (TAMANHO_CELULA - 1) * tamanho, TAMANHO_CELULA - 1);
+                        preview.setFill(new ImagePattern(new Image(getPortaAvioes().toString())));
+                        preview.setTranslateX((TAMANHO_CELULA * (rect.getxCoordenada() + 5)) + 34);
+                        preview.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
+                        stackPane.getChildren().add(preview);
+                        preview.toBack();
+                        hBoxVideo.toBack();
+                        break;
+                    case 4:
+                        preview = new Rectangle(rect.getLayoutX(), rect.getLayoutY(), (TAMANHO_CELULA - 1) * tamanho, TAMANHO_CELULA - 1);
+                        preview.setFill(new ImagePattern(new Image(getNavioTanque().toString())));
+                        preview.setTranslateX((TAMANHO_CELULA * (rect.getxCoordenada() + 5)) + 34);
+                        preview.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
+                        stackPane.getChildren().add(preview);
+                        preview.toBack();
+                        hBoxVideo.toBack();
+                        break;
+                    case 3:
+                        preview = new Rectangle(rect.getLayoutX(), rect.getLayoutY(), (TAMANHO_CELULA - 1) * tamanho, TAMANHO_CELULA - 1);
+                        preview.setFill(new ImagePattern(new Image(getContraTorpedo().toString())));
+                        preview.setTranslateX((TAMANHO_CELULA * (rect.getxCoordenada() + 5)) + 34);
+                        preview.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
+                        stackPane.getChildren().add(preview);
+                        preview.toBack();
+                        hBoxVideo.toBack();
+                        break;
+                    case 2:
+                        preview = new Rectangle(rect.getLayoutX(), rect.getLayoutY(), (TAMANHO_CELULA - 1) * tamanho, TAMANHO_CELULA - 1);
+                        preview.setFill(new ImagePattern(new Image(getSubmarino().toString())));
+                        preview.setTranslateX((TAMANHO_CELULA * (rect.getxCoordenada() + 5)) + 34);
+                        preview.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
+                        stackPane.getChildren().add(preview);
+                        preview.toBack();
+                        hBoxVideo.toBack();
+                        break;
                 }
             } else {
                 stackPane.getChildren().remove(preview);
@@ -254,11 +288,9 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         });
 
         rect.setOnDragExited((event) -> {
-            String tamanho = event.getDragboard().getString();
-
             stackPane.getChildren().remove(preview);
             preview = null;
-            
+
             event.consume();
         });
 
@@ -274,21 +306,356 @@ public class PreparacaoTela extends TabuleiroPreparacao {
             event.consume();
         });
 
-        rect.setOnDragDropped((event) -> {
-            String tamanho = event.getDragboard().getString();
+        rect.setOnDragDropped((DragEvent event) -> {
+            int tamanho = Integer.parseInt(event.getDragboard().getString());
 
             switch (tamanho) {
-                case "5":
+                case 5:
                     decrementarPaContador();
+
+                    RectangleNavio novo = new RectangleNavio(rect.getLayoutX(), rect.getLayoutY(), x, y, (TAMANHO_CELULA - 1) * tamanho, TAMANHO_CELULA - 1, new ImagePattern(new Image(getPortaAvioes().toString())), 5);
+                    novo.setOnMouseClicked((evento) -> {
+                        switch (novo.getRotacao()) {
+                            case 1:
+                                if (y + 4 <= TAMANHO - 1 && !campoMatriz[x][y + 1].isOcupado() && !campoMatriz[x][y + 2].isOcupado() && !campoMatriz[x][y + 3].isOcupado() && !campoMatriz[x][y + 4].isOcupado()) {
+                                    campoMatriz[x][y + 1].setOcupado(true);
+                                    campoMatriz[x][y + 1].setFill(Color.RED);
+                                    campoMatriz[x][y + 2].setOcupado(true);
+                                    campoMatriz[x][y + 2].setFill(Color.RED);
+                                    campoMatriz[x][y + 3].setOcupado(true);
+                                    campoMatriz[x][y + 3].setFill(Color.RED);
+                                    campoMatriz[x][y + 4].setOcupado(true);
+                                    campoMatriz[x][y + 4].setFill(Color.RED);
+
+                                    campoMatriz[x + 1][y].setOcupado(false);
+                                    campoMatriz[x + 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 2][y].setOcupado(false);
+                                    campoMatriz[x + 2][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 3][y].setOcupado(false);
+                                    campoMatriz[x + 3][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 4][y].setOcupado(false);
+                                    campoMatriz[x + 4][y].setFill(Color.TRANSPARENT);
+                                    novo.getTransforms().add(new Rotate(novo.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                            case 2:
+                                if (x - 4 >= 0 && !campoMatriz[x - 1][y].isOcupado() && !campoMatriz[x - 2][y].isOcupado() && !campoMatriz[x - 3][y].isOcupado() && !campoMatriz[x - 4][y].isOcupado()) {
+                                    campoMatriz[x - 1][y].setOcupado(true);
+                                    campoMatriz[x - 1][y].setFill(Color.RED);
+                                    campoMatriz[x - 2][y].setOcupado(true);
+                                    campoMatriz[x - 2][y].setFill(Color.RED);
+                                    campoMatriz[x - 3][y].setOcupado(true);
+                                    campoMatriz[x - 3][y].setFill(Color.RED);
+                                    campoMatriz[x - 4][y].setOcupado(true);
+                                    campoMatriz[x - 4][y].setFill(Color.RED);
+
+                                    campoMatriz[x][y + 1].setOcupado(false);
+                                    campoMatriz[x][y + 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 2].setOcupado(false);
+                                    campoMatriz[x][y + 2].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 3].setOcupado(false);
+                                    campoMatriz[x][y + 3].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 4].setOcupado(false);
+                                    campoMatriz[x][y + 4].setFill(Color.TRANSPARENT);
+                                    novo.getTransforms().add(new Rotate(novo.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                            case 3:
+                                if (y - 4 >= 0 && !campoMatriz[x][y - 1].isOcupado() && !campoMatriz[x][y - 2].isOcupado() && !campoMatriz[x][y - 3].isOcupado() && !campoMatriz[x][y - 4].isOcupado()) {
+                                    campoMatriz[x][y - 1].setOcupado(true);
+                                    campoMatriz[x][y - 1].setFill(Color.RED);
+                                    campoMatriz[x][y - 2].setOcupado(true);
+                                    campoMatriz[x][y - 2].setFill(Color.RED);
+                                    campoMatriz[x][y - 3].setOcupado(true);
+                                    campoMatriz[x][y - 3].setFill(Color.RED);
+                                    campoMatriz[x][y - 4].setOcupado(true);
+                                    campoMatriz[x][y - 4].setFill(Color.RED);
+
+                                    campoMatriz[x - 1][y].setOcupado(false);
+                                    campoMatriz[x - 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 2][y].setOcupado(false);
+                                    campoMatriz[x - 2][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 3][y].setOcupado(false);
+                                    campoMatriz[x - 3][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 4][y].setOcupado(false);
+                                    campoMatriz[x - 4][y].setFill(Color.TRANSPARENT);
+                                    novo.getTransforms().add(new Rotate(novo.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                            case 4:
+                                if (x + 4 <= TAMANHO - 1 && !campoMatriz[x + 1][y].isOcupado() && !campoMatriz[x + 2][y].isOcupado() && !campoMatriz[x + 3][y].isOcupado() && !campoMatriz[x + 4][y].isOcupado()) {
+                                    campoMatriz[x + 1][y].setOcupado(true);
+                                    campoMatriz[x + 1][y].setFill(Color.RED);
+                                    campoMatriz[x + 2][y].setOcupado(true);
+                                    campoMatriz[x + 2][y].setFill(Color.RED);
+                                    campoMatriz[x + 3][y].setOcupado(true);
+                                    campoMatriz[x + 3][y].setFill(Color.RED);
+                                    campoMatriz[x + 4][y].setOcupado(true);
+                                    campoMatriz[x + 4][y].setFill(Color.RED);
+
+                                    campoMatriz[x][y - 1].setOcupado(false);
+                                    campoMatriz[x][y - 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 2].setOcupado(false);
+                                    campoMatriz[x][y - 2].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 3].setOcupado(false);
+                                    campoMatriz[x][y - 3].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 4].setOcupado(false);
+                                    campoMatriz[x][y - 4].setFill(Color.TRANSPARENT);
+                                    novo.getTransforms().add(new Rotate(novo.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                        }
+                    });
+                    novo.setTranslateX((TAMANHO_CELULA * (rect.getxCoordenada() + 5)) + 34);
+                    novo.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
+
+                    for (int i = x; i < x + tamanho; i++) {
+                        campoMatriz[i][y].setFill(Color.RED);
+                        campoMatriz[i][y].setOcupado(true);
+                    }
+
+                    stackPane.getChildren().add(novo);
+                    navios.add(novo);
+
+                    stackPane.getChildren().remove(preview);
+                    preview = null;
                     break;
-                case "4":
+                case 4:
                     decrementarNtContador();
+
+                    RectangleNavio novo2 = new RectangleNavio(rect.getLayoutX(), rect.getLayoutY(), x, y, (TAMANHO_CELULA - 1) * tamanho, TAMANHO_CELULA - 1, new ImagePattern(new Image(getNavioTanque().toString())), 4);
+                    novo2.setOnMouseClicked((evento) -> {
+                        switch (novo2.getRotacao()) {
+                            case 1:
+                                if (y + 3 <= TAMANHO - 1 && !campoMatriz[x][y + 1].isOcupado() && !campoMatriz[x][y + 2].isOcupado() && !campoMatriz[x][y + 3].isOcupado()) {
+                                    campoMatriz[x][y + 1].setOcupado(true);
+                                    campoMatriz[x][y + 1].setFill(Color.RED);
+                                    campoMatriz[x][y + 2].setOcupado(true);
+                                    campoMatriz[x][y + 2].setFill(Color.RED);
+                                    campoMatriz[x][y + 3].setOcupado(true);
+                                    campoMatriz[x][y + 3].setFill(Color.RED);
+
+                                    campoMatriz[x + 1][y].setOcupado(false);
+                                    campoMatriz[x + 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 2][y].setOcupado(false);
+                                    campoMatriz[x + 2][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 3][y].setOcupado(false);
+                                    campoMatriz[x + 3][y].setFill(Color.TRANSPARENT);
+                                    novo2.getTransforms().add(new Rotate(novo2.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                            case 2:
+                                if (x - 3 >= 0 && !campoMatriz[x - 1][y].isOcupado() && !campoMatriz[x - 2][y].isOcupado() && !campoMatriz[x - 3][y].isOcupado()) {
+                                    campoMatriz[x - 1][y].setOcupado(true);
+                                    campoMatriz[x - 1][y].setFill(Color.RED);
+                                    campoMatriz[x - 2][y].setOcupado(true);
+                                    campoMatriz[x - 2][y].setFill(Color.RED);
+                                    campoMatriz[x - 3][y].setOcupado(true);
+                                    campoMatriz[x - 3][y].setFill(Color.RED);
+
+                                    campoMatriz[x][y + 1].setOcupado(false);
+                                    campoMatriz[x][y + 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 2].setOcupado(false);
+                                    campoMatriz[x][y + 2].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 3].setOcupado(false);
+                                    campoMatriz[x][y + 3].setFill(Color.TRANSPARENT);
+                                    novo2.getTransforms().add(new Rotate(novo2.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                            case 3:
+                                if (y - 3 >= 0 && !campoMatriz[x][y - 1].isOcupado() && !campoMatriz[x][y - 2].isOcupado() && !campoMatriz[x][y - 3].isOcupado()) {
+                                    campoMatriz[x][y - 1].setOcupado(true);
+                                    campoMatriz[x][y - 1].setFill(Color.RED);
+                                    campoMatriz[x][y - 2].setOcupado(true);
+                                    campoMatriz[x][y - 2].setFill(Color.RED);
+                                    campoMatriz[x][y - 3].setOcupado(true);
+                                    campoMatriz[x][y - 3].setFill(Color.RED);
+
+                                    campoMatriz[x - 1][y].setOcupado(false);
+                                    campoMatriz[x - 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 2][y].setOcupado(false);
+                                    campoMatriz[x - 2][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 3][y].setOcupado(false);
+                                    campoMatriz[x - 3][y].setFill(Color.TRANSPARENT);
+                                    novo2.getTransforms().add(new Rotate(novo2.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                            case 4:
+                                if (x + 3 <= TAMANHO - 1 && !campoMatriz[x + 1][y].isOcupado() && !campoMatriz[x + 2][y].isOcupado() && !campoMatriz[x + 3][y].isOcupado()) {
+                                    campoMatriz[x + 1][y].setOcupado(true);
+                                    campoMatriz[x + 1][y].setFill(Color.RED);
+                                    campoMatriz[x + 2][y].setOcupado(true);
+                                    campoMatriz[x + 2][y].setFill(Color.RED);
+                                    campoMatriz[x + 3][y].setOcupado(true);
+                                    campoMatriz[x + 3][y].setFill(Color.RED);
+
+                                    campoMatriz[x][y - 1].setOcupado(false);
+                                    campoMatriz[x][y - 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 2].setOcupado(false);
+                                    campoMatriz[x][y - 2].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 3].setOcupado(false);
+                                    campoMatriz[x][y - 3].setFill(Color.TRANSPARENT);
+                                    novo2.getTransforms().add(new Rotate(novo2.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                        }
+                    });
+                    novo2.setTranslateX((TAMANHO_CELULA * (rect.getxCoordenada() + 5)) + 34);
+                    novo2.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
+
+                    for (int i = x; i < x + tamanho; i++) {
+                        campoMatriz[i][y].setFill(Color.RED);
+                        campoMatriz[i][y].setOcupado(true);
+                    }
+
+                    stackPane.getChildren().add(novo2);
+                    navios.add(novo2);
+
+                    stackPane.getChildren().remove(preview);
+                    preview = null;
+
                     break;
-                case "3":
+                case 3:
                     decrementarCtContador();
+
+                    RectangleNavio novo3 = new RectangleNavio(rect.getLayoutX(), rect.getLayoutY(), x, y, (TAMANHO_CELULA - 1) * tamanho, TAMANHO_CELULA - 1, new ImagePattern(new Image(getContraTorpedo().toString())), 3);
+                    novo3.setOnMouseClicked((evento) -> {
+                        switch (novo3.getRotacao()) {
+                            case 1:
+                                if (y + 2 <= TAMANHO - 1 && !campoMatriz[x][y + 1].isOcupado() && !campoMatriz[x][y + 2].isOcupado()) {
+                                    campoMatriz[x][y + 1].setOcupado(true);
+                                    campoMatriz[x][y + 1].setFill(Color.RED);
+                                    campoMatriz[x][y + 2].setOcupado(true);
+                                    campoMatriz[x][y + 2].setFill(Color.RED);
+
+                                    campoMatriz[x + 1][y].setOcupado(false);
+                                    campoMatriz[x + 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 2][y].setOcupado(false);
+                                    campoMatriz[x + 2][y].setFill(Color.TRANSPARENT);
+                                    novo3.getTransforms().add(new Rotate(novo3.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                            case 2:
+                                if (x - 2 >= 0 && !campoMatriz[x - 1][y].isOcupado() && !campoMatriz[x - 2][y].isOcupado()) {
+                                    campoMatriz[x - 1][y].setOcupado(true);
+                                    campoMatriz[x - 1][y].setFill(Color.RED);
+                                    campoMatriz[x - 2][y].setOcupado(true);
+                                    campoMatriz[x - 2][y].setFill(Color.RED);
+
+                                    campoMatriz[x][y + 1].setOcupado(false);
+                                    campoMatriz[x][y + 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 2].setOcupado(false);
+                                    campoMatriz[x][y + 2].setFill(Color.TRANSPARENT);
+                                    novo3.getTransforms().add(new Rotate(novo3.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                            case 3:
+                                if (y - 2 >= 0 && !campoMatriz[x][y - 1].isOcupado() && !campoMatriz[x][y - 2].isOcupado()) {
+                                    campoMatriz[x][y - 1].setOcupado(true);
+                                    campoMatriz[x][y - 1].setFill(Color.RED);
+                                    campoMatriz[x][y - 2].setOcupado(true);
+                                    campoMatriz[x][y - 2].setFill(Color.RED);
+                                    
+                                    campoMatriz[x - 1][y].setOcupado(false);
+                                    campoMatriz[x - 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 2][y].setOcupado(false);
+                                    campoMatriz[x - 2][y].setFill(Color.TRANSPARENT);
+                                    novo3.getTransforms().add(new Rotate(novo3.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                            case 4:
+                                if (x + 2 <= TAMANHO - 1 && !campoMatriz[x + 1][y].isOcupado() && !campoMatriz[x + 2][y].isOcupado()) {
+                                    campoMatriz[x + 1][y].setOcupado(true);
+                                    campoMatriz[x + 1][y].setFill(Color.RED);
+                                    campoMatriz[x + 2][y].setOcupado(true);
+                                    campoMatriz[x + 2][y].setFill(Color.RED);
+
+                                    campoMatriz[x][y - 1].setOcupado(false);
+                                    campoMatriz[x][y - 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 2].setOcupado(false);
+                                    campoMatriz[x][y - 2].setFill(Color.TRANSPARENT);
+                                    novo3.getTransforms().add(new Rotate(novo3.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                        }
+                    });
+                    novo3.setTranslateX((TAMANHO_CELULA * (rect.getxCoordenada() + 5)) + 34);
+                    novo3.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
+
+                    for (int i = x; i < x + tamanho; i++) {
+                        campoMatriz[i][y].setFill(Color.RED);
+                        campoMatriz[i][y].setOcupado(true);
+                    }
+
+                    stackPane.getChildren().add(novo3);
+                    navios.add(novo3);
+
+                    stackPane.getChildren().remove(preview);
+                    preview = null;
+
                     break;
-                case "2":
+                case 2:
                     decrementarSubContador();
+
+                    RectangleNavio novo4 = new RectangleNavio(rect.getLayoutX(), rect.getLayoutY(), x, y, (TAMANHO_CELULA - 1) * tamanho, TAMANHO_CELULA - 1, new ImagePattern(new Image(getSubmarino().toString())), 2);
+                    novo4.setOnMouseClicked((evento) -> {
+                        switch (novo4.getRotacao()) {
+                            case 1:
+                                if (y + 1 <= TAMANHO - 1 && !campoMatriz[x][y + 1].isOcupado()) {
+                                    campoMatriz[x][y + 1].setOcupado(true);
+                                    campoMatriz[x][y + 1].setFill(Color.RED);
+
+                                    campoMatriz[x + 1][y].setOcupado(false);
+                                    campoMatriz[x + 1][y].setFill(Color.TRANSPARENT);
+                                    novo4.getTransforms().add(new Rotate(novo4.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                            case 2:
+                                if (x - 1 >= 0 && !campoMatriz[x - 1][y].isOcupado()) {
+                                    campoMatriz[x - 1][y].setOcupado(true);
+                                    campoMatriz[x - 1][y].setFill(Color.RED);
+
+                                    campoMatriz[x][y + 1].setOcupado(false);
+                                    campoMatriz[x][y + 1].setFill(Color.TRANSPARENT);
+                                    novo4.getTransforms().add(new Rotate(novo4.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                            case 3:
+                                if (y - 1 >= 0 && !campoMatriz[x][y - 1].isOcupado()) {
+                                    campoMatriz[x][y - 1].setOcupado(true);
+                                    campoMatriz[x][y - 1].setFill(Color.RED);
+
+                                    campoMatriz[x - 1][y].setOcupado(false);
+                                    campoMatriz[x - 1][y].setFill(Color.TRANSPARENT);
+                                    novo4.getTransforms().add(new Rotate(novo4.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                            case 4:
+                                if (x + 1 <= TAMANHO - 1 && !campoMatriz[x + 1][y].isOcupado()) {
+                                    campoMatriz[x + 1][y].setOcupado(true);
+                                    campoMatriz[x + 1][y].setFill(Color.RED);
+
+                                    campoMatriz[x][y - 1].setOcupado(false);
+                                    campoMatriz[x][y - 1].setFill(Color.TRANSPARENT);
+                                    novo4.getTransforms().add(new Rotate(novo4.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
+                                }
+                                break;
+                        }
+                    });
+                    novo4.setTranslateX((TAMANHO_CELULA * (rect.getxCoordenada() + 5)) + 34);
+                    novo4.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
+
+                    for (int i = x; i < x + tamanho; i++) {
+                        campoMatriz[i][y].setFill(Color.RED);
+                        campoMatriz[i][y].setOcupado(true);
+                    }
+
+                    stackPane.getChildren().add(novo4);
+                    navios.add(novo4);
+
+                    stackPane.getChildren().remove(preview);
+                    preview = null;
+
                     break;
             }
 
@@ -300,7 +667,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
     }
 
     private URL getVideo() {
-        return getClass().getResource("recursos/backgroundloop.mp4");
+        return getClass().getResource("recursos/background.mp4");
     }
 
     private URL getPortaAvioes() {
@@ -308,19 +675,15 @@ public class PreparacaoTela extends TabuleiroPreparacao {
     }
 
     private URL getNavioTanque() {
-        return getClass().getResource("recursos/backgroundloop.mp4");
+        return getClass().getResource("recursos/cruiser.PNG");
     }
 
     private URL getContraTorpedo() {
-        return getClass().getResource("recursos/backgroundloop.mp4");
+        return getClass().getResource("recursos/destroyer.PNG");
     }
 
     private URL getSubmarino() {
-        return getClass().getResource("recursos/backgroundloop.mp4");
-    }
-
-    private void previewBarco(int x, int y, int tamanho) {
-
+        return getClass().getResource("recursos/submarino.PNG");
     }
 
     private void decrementarPaContador() {

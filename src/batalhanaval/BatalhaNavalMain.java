@@ -54,6 +54,7 @@ public class BatalhaNavalMain extends JApplet {
             frame.pack();
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
+            frame.setResizable(false);
 
             applet.start();
         });
