@@ -99,7 +99,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
             if (paContagem == 0 && ntContagem == 0 && ctContagem == 0 && subContagem == 0) {
                 new Thread(() -> {
                     Comunicacao.enviarMensagem(ComandosNet.PRONTO.comando);
-                    new BatalhaTela().iniciarTela(navios, contagemTotal);
+                    BatalhaTela.getInstance().iniciarTela(navios, contagemTotal);
                 }).start();
             } else {
                 BatalhaNavalMain.enviarMensagemErro("Posicione todos os navios");
@@ -159,10 +159,6 @@ public class PreparacaoTela extends TabuleiroPreparacao {
 
         stackPane = new StackPane(hBoxVideo, hBoxCentro);
 
-        //Rectangle clipRect = new Rectangle(TAMANHO * TAMANHO_CELULA, 1000);
-        //clipRect.setTranslateX(232);
-
-        //stackPane.setClip(clipRect);
         stackPane.setAlignment(Pos.TOP_LEFT);
 
         VBox vBoxDireita = new VBox();

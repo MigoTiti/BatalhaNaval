@@ -33,22 +33,25 @@ public class Comunicacao {
                 String comando = st.nextToken();
 
                 if (comando.equals(ComandosNet.DESCONECTAR.comando)) {
-                    batalhanaval.BatalhaNavalMain.createScene();
                     desconectar();
+                    Platform.runLater(() -> {
+                        BatalhaNavalMain.enviarMensagemErro("O outro jogador foi desconectado. Voltando ao menu principal.");
+                        batalhanaval.BatalhaNavalMain.createScene();
+                    });
                 } else if (comando.equals(ComandosNet.PRONTO.comando)) {
                     PreparacaoTela.oponentePronto = true;
                 } else if (comando.equals(ComandosNet.JOGADA.comando)) {
-                    if (BatalhaTela.pronto) {
+                    if (BatalhaTela.getInstance().isPronto()) {
                         int x = Integer.parseInt(st.nextToken());
                         int y = Integer.parseInt(st.nextToken());
 
                         if (BatalhaTela.campoUsuarioMatriz[x][y].isOcupado()) {
                             Platform.runLater(() -> {
                                 BatalhaTela.campoUsuarioMatriz[x][y].setFill(BatalhaTela.COR_ACERTO);
-                                BatalhaTela.contagemUsuario--;
+                                BatalhaTela.getInstance().decrementarContagemUsuario();
 
-                                if (BatalhaTela.contagemUsuario == 0) {
-                                    BatalhaNavalMain.enviarMensagemInfo("TU PERDEU MANO FOTASE");
+                                if (BatalhaTela.getInstance().getContagemUsuario() == 0) {
+                                    BatalhaNavalMain.enviarMensagemInfo("Você perdeu.");
                                 } else {
                                     BatalhaNavalMain.enviarMensagemInfo("Sua vez");
                                 }
@@ -73,22 +76,20 @@ public class Comunicacao {
                     if (st.nextToken().equals("a")) {
                         Platform.runLater(() -> {
                             BatalhaTela.campoAdversarioMatriz[x][y].setFill(BatalhaTela.COR_ACERTO);
-                            BatalhaTela.contagemAdversario--;
+                            BatalhaTela.getInstance().decrementarContagemAdversario();
 
-                            if (BatalhaTela.contagemAdversario == 0) {
-                                BatalhaNavalMain.enviarMensagemInfo("TU GANHOU ENOS");
+                            if (BatalhaTela.getInstance().getContagemAdversario() == 0) {
+                                BatalhaNavalMain.enviarMensagemInfo("Você ganhou!");
                             }
-                            //BatalhaNavalMain.enviarMensagemInfo("Sua vez");
                         });
                     } else {
                         Platform.runLater(() -> {
                             BatalhaTela.campoAdversarioMatriz[x][y].setFill(BatalhaTela.COR_ERRO);
-                            //BatalhaNavalMain.enviarMensagemInfo("Sua vez");
                         });
                     }
                 } else if (comando.equals(ComandosNet.NAO_PRONTO.comando)){
                     Platform.runLater(() -> {
-                        BatalhaNavalMain.enviarMensagemErro("O CARA N TÁ PRONTO, MANO");
+                        BatalhaNavalMain.enviarMensagemErro("O outro jogador ainda não está pronto");
                     });
                     vezDoUsuario = true;
                 } else {
@@ -101,7 +102,8 @@ public class Comunicacao {
     }
 
     public static void desconectar() {
-        socket.close();
+        if (socket != null)
+            socket.close();
         socket = null;
         conexaoAberta = false;
         ipAEnviar = null;

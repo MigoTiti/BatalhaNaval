@@ -40,7 +40,7 @@ public class BatalhaNavalMain extends JApplet {
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
             }
 
-            JFrame frame = new JFrame("BATALHA DOS BARCO");
+            JFrame frame = new JFrame("Batalha Naval");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
             JApplet applet = new BatalhaNavalMain();

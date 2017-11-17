@@ -36,8 +36,8 @@ public class CriarPartidaTela {
 
         Button voltar = new Button("Voltar");
         voltar.setOnAction(event -> {
+            Comunicacao.desconectar();
             BatalhaNavalMain.createScene();
-            socket = null;
         });
 
         HBox hBoxBaixo = new HBox(voltar);
