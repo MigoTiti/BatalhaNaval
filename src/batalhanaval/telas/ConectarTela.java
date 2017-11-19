@@ -1,6 +1,5 @@
 package batalhanaval.telas;
 
-import batalhanaval.BatalhaNavalMain;
 import batalhanaval.enums.ComandosNet;
 import batalhanaval.rede.Comunicacao;
 import java.io.IOException;
@@ -38,7 +37,7 @@ public class ConectarTela {
 
         Button voltar = new Button("Voltar");
         voltar.setOnAction(event -> {
-            BatalhaNavalMain.createScene();
+            TelaInicial.createScene();
         });
 
         HBox hBoxBaixo = new HBox(voltar);
@@ -46,7 +45,7 @@ public class ConectarTela {
 
         painel.setBottom(hBoxBaixo);
 
-        BatalhaNavalMain.fxContainer.setScene(new Scene(painel));
+        TelaInicial.fxContainer.setScene(new Scene(painel));
 
         new Thread(() -> {
             System.out.println("Cliente");
@@ -54,7 +53,7 @@ public class ConectarTela {
         }).start();
     }
 
-    private static void conectar(String ip, String nickname) {
+    private void conectar(String ip, String nickname) {
         try {
             Comunicacao comunicador = new Comunicacao();
             comunicador.setIpAEnviar(InetAddress.getByName(ip));

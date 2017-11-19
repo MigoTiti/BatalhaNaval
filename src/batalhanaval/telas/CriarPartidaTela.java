@@ -1,6 +1,5 @@
 package batalhanaval.telas;
 
-import batalhanaval.BatalhaNavalMain;
 import batalhanaval.enums.ComandosNet;
 import batalhanaval.rede.Comunicacao;
 import java.io.IOException;
@@ -35,7 +34,7 @@ public class CriarPartidaTela {
 
         Button voltar = new Button("Voltar");
         voltar.setOnAction(event -> {
-            BatalhaNavalMain.createScene();
+            TelaInicial.createScene();
         });
 
         HBox hBoxBaixo = new HBox(voltar);
@@ -43,7 +42,7 @@ public class CriarPartidaTela {
 
         painel.setBottom(hBoxBaixo);
 
-        BatalhaNavalMain.fxContainer.setScene(new Scene(painel));
+        TelaInicial.fxContainer.setScene(new Scene(painel));
 
         new Thread(() -> {
             System.out.println("Servidor");
@@ -51,9 +50,9 @@ public class CriarPartidaTela {
         }).start();
     }
 
-    private static void ouvirConexoes(String nickname) {
+    private void ouvirConexoes(String nickname) {
         try {
-            Comunicacao comunicador = new Comunicacao(BatalhaNavalMain.PORTA_PADRAO);
+            Comunicacao comunicador = new Comunicacao(TelaInicial.PORTA_PADRAO);
 
             byte[] mensagemAReceber = new byte[500];
             DatagramPacket pacoteAReceber = new DatagramPacket(mensagemAReceber, mensagemAReceber.length);

@@ -1,6 +1,6 @@
 package batalhanaval.rede;
 
-import batalhanaval.BatalhaNavalMain;
+import batalhanaval.telas.TelaInicial;
 import batalhanaval.enums.ComandosNet;
 import batalhanaval.telas.BatalhaTela;
 import batalhanaval.telas.PreparacaoTela;
@@ -27,7 +27,7 @@ public class Comunicacao {
             socket = new DatagramSocket(porta);
             conexaoAberta = false;
             ipAEnviar = null;
-            portaAEnviar = batalhanaval.BatalhaNavalMain.PORTA_PADRAO;
+            portaAEnviar = batalhanaval.telas.TelaInicial.PORTA_PADRAO;
             vezDoUsuario = false;
         } catch (SocketException ex) {
             Logger.getLogger(Comunicacao.class.getName()).log(Level.SEVERE, null, ex);
@@ -39,7 +39,7 @@ public class Comunicacao {
             socket = new DatagramSocket();
             conexaoAberta = false;
             ipAEnviar = null;
-            portaAEnviar = batalhanaval.BatalhaNavalMain.PORTA_PADRAO;
+            portaAEnviar = batalhanaval.telas.TelaInicial.PORTA_PADRAO;
             vezDoUsuario = false;
         } catch (SocketException ex) {
             Logger.getLogger(Comunicacao.class.getName()).log(Level.SEVERE, null, ex);
@@ -72,79 +72,70 @@ public class Comunicacao {
 
     public void persistirConexao() {
         while (conexaoAberta) {
-            try {
-                byte[] buffer = new byte[500];
-                DatagramPacket pacoteResposta = new DatagramPacket(buffer, buffer.length);
-                socket.receive(pacoteResposta);
-                String respostaString = new String(pacoteResposta.getData()).trim();
-
-                StringTokenizer st = new StringTokenizer(respostaString, "&");
-                String comando = st.nextToken();
-
-                if (comando.equals(ComandosNet.DESCONECTAR.comando)) {
-                    Platform.runLater(() -> {
-                        BatalhaNavalMain.enviarMensagemErro("O outro jogador foi desconectado. Voltando ao menu principal.");
-                        BatalhaNavalMain.createScene();
-                    });
-                } else if (comando.equals(ComandosNet.PRONTO.comando)) {
-                    PreparacaoTela.oponentePronto = true;
-                } else if (comando.equals(ComandosNet.JOGADA.comando)) {
-                    if (BatalhaTela.getInstance().isPronto()) {
-                        int x = Integer.parseInt(st.nextToken());
-                        int y = Integer.parseInt(st.nextToken());
-
-                        if (BatalhaTela.getInstance().getCampoUsuarioMatriz()[x][y].isOcupado()) {
-                            Platform.runLater(() -> {
-                                BatalhaTela.getInstance().getCampoUsuarioMatriz()[x][y].setFill(BatalhaTela.COR_ACERTO);
-                                BatalhaTela.getInstance().decrementarContagemUsuario();
-
-                                if (BatalhaTela.getInstance().getContagemUsuario() == 0) {
-                                    BatalhaNavalMain.enviarMensagemInfo("Você perdeu.");
-                                } else {
-                                    BatalhaNavalMain.enviarMensagemInfo("Sua vez");
-                                }
-                            });
-                            enviarMensagem(ComandosNet.REPORTAR_JOGADA.comando + "&" + x + "&" + y + "&a");
-                        } else {
-                            Platform.runLater(() -> {
-                                BatalhaTela.getInstance().getCampoUsuarioMatriz()[x][y].setFill(BatalhaTela.COR_ERRO);
-                                BatalhaNavalMain.enviarMensagemInfo("Sua vez");
-                            });
-                            enviarMensagem(ComandosNet.REPORTAR_JOGADA.comando + "&" + x + "&" + y + "&e");
-                        }
-
-                        vezDoUsuario = true;
-                    } else {
-                        enviarMensagem(ComandosNet.NAO_PRONTO.comando);
-                    }
-                } else if (comando.equals(ComandosNet.REPORTAR_JOGADA.comando)) {
+            String respostaString = receberMensagem().trim();
+            StringTokenizer st = new StringTokenizer(respostaString, "&");
+            String comando = st.nextToken();
+            if (comando.equals(ComandosNet.DESCONECTAR.comando)) {
+                Platform.runLater(() -> {
+                    TelaInicial.enviarMensagemErro("O outro jogador foi desconectado. Voltando ao menu principal.");
+                    TelaInicial.createScene();
+                });
+            } else if (comando.equals(ComandosNet.PRONTO.comando)) {
+                PreparacaoTela.oponentePronto = true;
+            } else if (comando.equals(ComandosNet.JOGADA.comando)) {
+                if (BatalhaTela.getInstance().isPronto()) {
                     int x = Integer.parseInt(st.nextToken());
                     int y = Integer.parseInt(st.nextToken());
-
-                    if (st.nextToken().equals("a")) {
+                    
+                    if (BatalhaTela.getInstance().getCampoUsuarioMatriz()[x][y].isOcupado()) {
                         Platform.runLater(() -> {
-                            BatalhaTela.getInstance().getCampoAdversarioMatriz()[x][y].setFill(BatalhaTela.COR_ACERTO);
-                            BatalhaTela.getInstance().decrementarContagemAdversario();
-
-                            if (BatalhaTela.getInstance().getContagemAdversario() == 0) {
-                                BatalhaNavalMain.enviarMensagemInfo("Você ganhou!");
+                            BatalhaTela.getInstance().getCampoUsuarioMatriz()[x][y].setFill(BatalhaTela.COR_ACERTO);
+                            BatalhaTela.getInstance().decrementarContagemUsuario();
+                            
+                            if (BatalhaTela.getInstance().getContagemUsuario() == 0) {
+                                TelaInicial.enviarMensagemInfo("Você perdeu.");
+                            } else {
+                                TelaInicial.enviarMensagemInfo("Sua vez");
                             }
                         });
+                        enviarMensagem(ComandosNet.REPORTAR_JOGADA.comando + "&" + x + "&" + y + "&a");
                     } else {
                         Platform.runLater(() -> {
-                            BatalhaTela.getInstance().getCampoAdversarioMatriz()[x][y].setFill(BatalhaTela.COR_ERRO);
+                            BatalhaTela.getInstance().getCampoUsuarioMatriz()[x][y].setFill(BatalhaTela.COR_ERRO);
+                            TelaInicial.enviarMensagemInfo("Sua vez");
                         });
+                        enviarMensagem(ComandosNet.REPORTAR_JOGADA.comando + "&" + x + "&" + y + "&e");
                     }
-                } else if (comando.equals(ComandosNet.NAO_PRONTO.comando)) {
-                    Platform.runLater(() -> {
-                        BatalhaNavalMain.enviarMensagemErro("O outro jogador ainda não está pronto");
-                    });
+
                     vezDoUsuario = true;
                 } else {
-                    System.out.println(comando);
+                    enviarMensagem(ComandosNet.NAO_PRONTO.comando);
                 }
-            } catch (IOException ex) {
-                Logger.getLogger(Comunicacao.class.getName()).log(Level.SEVERE, null, ex);
+            } else if (comando.equals(ComandosNet.REPORTAR_JOGADA.comando)) {
+                int x = Integer.parseInt(st.nextToken());
+                int y = Integer.parseInt(st.nextToken());
+                
+                if (st.nextToken().equals("a")) {
+                    Platform.runLater(() -> {
+                        BatalhaTela.getInstance().getCampoAdversarioMatriz()[x][y].setFill(BatalhaTela.COR_ACERTO);
+                        BatalhaTela.getInstance().decrementarContagemAdversario();
+                        
+                        if (BatalhaTela.getInstance().getContagemAdversario() == 0) {
+                            TelaInicial.enviarMensagemInfo("Você ganhou!");
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        BatalhaTela.getInstance().getCampoAdversarioMatriz()[x][y].setFill(BatalhaTela.COR_ERRO);
+                    });
+                }
+            } else if (comando.equals(ComandosNet.NAO_PRONTO.comando)) {
+                Platform.runLater(() -> {
+                    TelaInicial.enviarMensagemErro("O outro jogador ainda não está pronto");
+                });
+                vezDoUsuario = true;
+            } else {
+                System.out.println(comando);
             }
         }
     }

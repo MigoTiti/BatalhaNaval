@@ -1,6 +1,5 @@
 package batalhanaval.telas;
 
-import batalhanaval.BatalhaNavalMain;
 import batalhanaval.enums.ComandosNet;
 import batalhanaval.rede.Comunicacao;
 import batalhanaval.tabuleiros.TabuleiroPreparacao;
@@ -60,11 +59,11 @@ public class PreparacaoTela extends TabuleiroPreparacao {
 
     private final Comunicacao comunicador;
     
-    Rectangle preview;
-    HBox hBoxVideo;
-    StackPane stackPane;
+    private Rectangle preview;
+    private HBox hBoxVideo;
+    private StackPane stackPane;
 
-    Set<RectangleNavio> navios;
+    private Set<RectangleNavio> navios;
 
     public PreparacaoTela(Comunicacao comunicador) {
         this.comunicador = comunicador;
@@ -105,14 +104,14 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                     BatalhaTela.getInstance().iniciarTela(navios, contagemTotal, nickname, nicknameAdversario, comunicador);
                 }).start();
             } else {
-                BatalhaNavalMain.enviarMensagemErro("Posicione todos os navios");
+                TelaInicial.enviarMensagemErro("Posicione todos os navios");
             }
         });
 
         Button voltar = new Button("Sair da partida");
         voltar.setOnAction((ActionEvent) -> {
             comunicador.enviarMensagem(ComandosNet.DESCONECTAR.comando);
-            BatalhaNavalMain.createScene();
+            TelaInicial.createScene();
         });
 
         hBoxTop.getChildren().addAll(voltar, helpText, iniciar);
@@ -174,7 +173,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         root.setTop(hBoxTop);
         root.setRight(vBoxDireita);
 
-        BatalhaNavalMain.fxContainer.setScene(new Scene(root));
+        TelaInicial.fxContainer.setScene(new Scene(root));
     }
 
     private GridPane iniciarTelaSelecao() {

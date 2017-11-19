@@ -1,6 +1,5 @@
 package batalhanaval.telas;
 
-import batalhanaval.BatalhaNavalMain;
 import batalhanaval.enums.ComandosNet;
 import batalhanaval.rede.Comunicacao;
 import batalhanaval.tabuleiros.TabuleiroPronto;
@@ -328,12 +327,12 @@ public class BatalhaTela extends TabuleiroPronto {
             campoAdversarioMatriz = null;
             campoUsuarioMatriz = null;
             comunicador.enviarMensagem(ComandosNet.DESCONECTAR.comando);
-            BatalhaNavalMain.createScene();
+            TelaInicial.createScene();
         });
 
         root.setTop(hBoxTop);
 
-        BatalhaNavalMain.fxContainer.setScene(new Scene(root));
+        TelaInicial.fxContainer.setScene(new Scene(root));
         pronto = true;
     }
 
@@ -341,22 +340,20 @@ public class BatalhaTela extends TabuleiroPronto {
         RectangleCoordenado rect = new RectangleCoordenado(x, y, TAMANHO_CELULA - 1, TAMANHO_CELULA - 1, Color.TRANSPARENT);
         rect.setStroke(Color.YELLOW);
         rect.setStrokeWidth(1);
-
+        
         if (!usuario) {
             rect.setOnMouseClicked(event -> {
-                if (contagemUsuario == 0) {
-                    BatalhaNavalMain.enviarMensagemErro("Você perdeu");
-                } else if (contagemAdversario == 0) {
-                    BatalhaNavalMain.enviarMensagemErro("Você ganhou");
+                if (contagemUsuario == 0 || contagemAdversario == 0) {
+                    TelaInicial.enviarMensagemErro("A partida já acabou");
                 } else if (comunicador.isVezDoUsuario()) {
                     if (!campoAdversarioMatriz[x][y].getFill().equals(COR_ACERTO) && !campoAdversarioMatriz[x][y].getFill().equals(COR_ERRO)) {
                         atirar(x, y);
                         comunicador.setVezDoUsuario(false);
                     } else {
-                        BatalhaNavalMain.enviarMensagemErro("Escolha um lugar vazio para atirar");
+                        TelaInicial.enviarMensagemErro("Escolha um lugar vazio para atirar");
                     }
                 } else {
-                    BatalhaNavalMain.enviarMensagemErro("Espere a sua vez");
+                    TelaInicial.enviarMensagemErro("Espere a sua vez");
                 }
             });
         }

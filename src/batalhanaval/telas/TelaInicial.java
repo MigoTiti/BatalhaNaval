@@ -1,4 +1,4 @@
-package batalhanaval;
+package batalhanaval.telas;
 
 import batalhanaval.telas.BatalhaTela;
 import batalhanaval.telas.ConectarTela;
@@ -26,7 +26,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-public class BatalhaNavalMain extends JApplet {
+public class TelaInicial extends JApplet {
 
     private static final int JFXPANEL_WIDTH_INT = 1000;
     private static final int JFXPANEL_HEIGHT_INT = 700;
@@ -43,7 +43,7 @@ public class BatalhaNavalMain extends JApplet {
             JFrame frame = new JFrame("Batalha Naval");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-            JApplet applet = new BatalhaNavalMain();
+            JApplet applet = new TelaInicial();
             applet.init();
 
             frame.setContentPane(applet.getContentPane());
@@ -63,7 +63,7 @@ public class BatalhaNavalMain extends JApplet {
         fxContainer.setPreferredSize(new Dimension(JFXPANEL_WIDTH_INT, JFXPANEL_HEIGHT_INT));
         add(fxContainer, BorderLayout.CENTER);
 
-        Platform.runLater(BatalhaNavalMain::createScene);
+        Platform.runLater(TelaInicial::createScene);
     }
 
     public static void createScene() {
