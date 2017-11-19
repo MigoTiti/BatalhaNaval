@@ -5,7 +5,6 @@ import batalhanaval.rede.Comunicacao;
 import batalhanaval.tabuleiros.TabuleiroPronto;
 import batalhanaval.util.RectangleCoordenado;
 import batalhanaval.util.RectangleNavio;
-import java.net.URL;
 import java.util.Set;
 import javafx.application.Platform;
 import javafx.geometry.Insets;

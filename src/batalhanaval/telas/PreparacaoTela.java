@@ -62,7 +62,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
     private StackPane stackPane;
     private HBox stub;
     
-    private Set<RectangleNavio> navios;
+    private final Set<RectangleNavio> navios;
 
     public PreparacaoTela(Comunicacao comunicador) {
         this.comunicador = comunicador;

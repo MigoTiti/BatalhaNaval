@@ -2,12 +2,8 @@ package batalhanaval.telas;
 
 import batalhanaval.enums.ComandosNet;
 import batalhanaval.rede.Comunicacao;
-import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
