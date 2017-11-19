@@ -68,9 +68,9 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         this.comunicador = comunicador;
         
         paContagem = 1;
-        ntContagem = 1;
-        ctContagem = 1;
-        subContagem = 1;
+        ntContagem = 2;
+        ctContagem = 3;
+        subContagem = 4;
         
         contagemTotal = (paContagem * 5) + (ntContagem * 4) + (ctContagem * 3) + (subContagem * 2);
         
@@ -99,7 +99,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         iniciar.setOnAction(evento -> {
             if (paContagem == 0 && ntContagem == 0 && ctContagem == 0 && subContagem == 0) {
                 new Thread(() -> {
-                    comunicador.enviarMensagem(ComandosNet.PRONTO.comando);
+                    comunicador.enviarMensagem(ComandosNet.PRONTO.comando + "&");
                     BatalhaTela.getInstance().iniciarTela(navios, contagemTotal, nickname, nicknameAdversario, comunicador);
                 }).start();
             } else {

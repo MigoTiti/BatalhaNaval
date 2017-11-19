@@ -68,7 +68,7 @@ public class CriarPartidaTela {
             comunicador.setPortaAEnviar(pacoteAReceber.getPort());
 
             while (true) {
-                if (comando.equals("1")) {
+                if (comando.equals(ComandosNet.SOLICITAR_CONEXAO.comando)) {
                     String nickAdversario = st.nextToken();
                     String resposta;
 
@@ -81,7 +81,8 @@ public class CriarPartidaTela {
                         st = new StringTokenizer(mensagemRecebida, "&");
                         comando = st.nextToken();
                     } else {
-                        resposta = ComandosNet.CONECTADO.comando + "&" + nickname + "&" + nickAdversario + "&";
+                        resposta = ComandosNet.RESPOSTA_SOLICITACAO_CONEXAO.comando + "&" 
+                                + nickname + "&" + nickAdversario + "&";
                         comunicador.enviarMensagem(resposta);
 
                         new PreparacaoTela(comunicador).iniciarTela(nickname, nickAdversario);

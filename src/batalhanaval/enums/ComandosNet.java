@@ -2,7 +2,7 @@ package batalhanaval.enums;
 
 public enum ComandosNet {
     
-    CONECTADO("1"), PRONTO("2"), DESCONECTAR("3"), JOGADA("4"), REPORTAR_JOGADA("5"), NAO_PRONTO("6"), NOME_REPETIDO("7");
+    SOLICITAR_CONEXAO("1"), RESPOSTA_SOLICITACAO_CONEXAO("2") , PRONTO("3"), DESCONECTAR("4"), JOGADA("5"), REPORTAR_JOGADA("6"), NAO_PRONTO("7"), NOME_REPETIDO("8");
     
     public String comando;
 

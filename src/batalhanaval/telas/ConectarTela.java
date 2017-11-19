@@ -21,7 +21,7 @@ import javafx.scene.text.Text;
 
 public class ConectarTela {
 
-    Comunicacao comunicador;
+    private Comunicacao comunicador;
     
     public void iniciarTela(String ip, String nickname) {
         Text texto = new Text("Tentando conexão com: " + ip);
@@ -45,7 +45,7 @@ public class ConectarTela {
         hBoxBaixo.setPadding(new Insets(15));
 
         painel.setBottom(hBoxBaixo);
-
+        
         TelaInicial.fxContainer.setScene(new Scene(painel));
 
         new Thread(() -> {
@@ -59,7 +59,7 @@ public class ConectarTela {
             comunicador = new Comunicacao();
             comunicador.setIpAEnviar(InetAddress.getByName(ip));
 
-            String mensagemString = ComandosNet.CONECTADO.comando + "&" + nickname + "&";
+            String mensagemString = ComandosNet.SOLICITAR_CONEXAO.comando + "&" + nickname + "&";
             comunicador.enviarMensagem(mensagemString);
 
             while (true) {
@@ -68,7 +68,7 @@ public class ConectarTela {
                 StringTokenizer st = new StringTokenizer(respostaString, "&");
                 String comando = st.nextToken();
 
-                if (comando.equals(ComandosNet.CONECTADO.comando)) {
+                if (comando.equals(ComandosNet.RESPOSTA_SOLICITACAO_CONEXAO.comando)) {
                     String nickAdversario = st.nextToken();
                     nickname = st.nextToken();
                     
@@ -86,15 +86,15 @@ public class ConectarTela {
                             dialog.setContentText("Escolha outro apelido: ");
                             Optional<String> result = dialog.showAndWait();
                             if (result.isPresent()) {
-                                comunicador.enviarMensagem(ComandosNet.CONECTADO.comando + "&" + result.get() + "&");
+                                comunicador.enviarMensagem(ComandosNet.SOLICITAR_CONEXAO.comando 
+                                        + "&" + result.get() + "&");
                                 break;
-                            } else {
-
                             }
                         }
                     });
                 }
             }
+                
         } catch (Exception ex) {
             Platform.runLater(() -> {
                 TelaInicial.exibirException(ex);

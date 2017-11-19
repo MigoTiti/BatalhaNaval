@@ -110,7 +110,7 @@ public class Comunicacao {
 
                     vezDoUsuario = true;
                 } else {
-                    enviarMensagem(ComandosNet.NAO_PRONTO.comando);
+                    enviarMensagem(ComandosNet.NAO_PRONTO.comando + "&");
                 }
             } else if (comando.equals(ComandosNet.REPORTAR_JOGADA.comando)) {
                 int x = Integer.parseInt(st.nextToken());
