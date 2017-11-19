@@ -111,6 +111,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         Button voltar = new Button("Sair da partida");
         voltar.setOnAction((ActionEvent) -> {
             comunicador.enviarMensagem(ComandosNet.DESCONECTAR.comando);
+            comunicador.desconectar();
             TelaInicial.createScene();
         });
 

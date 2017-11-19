@@ -4,9 +4,11 @@ import batalhanaval.enums.ComandosNet;
 import batalhanaval.rede.Comunicacao;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -21,6 +23,8 @@ import javafx.scene.text.Text;
 
 public class CriarPartidaTela {
 
+    Comunicacao comunicador;
+    
     public void iniciarTela(String nickname) {
         Text texto = new Text("Aguardando oponente");
         texto.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
@@ -35,6 +39,8 @@ public class CriarPartidaTela {
         Button voltar = new Button("Voltar");
         voltar.setOnAction(event -> {
             TelaInicial.createScene();
+            if (comunicador != null)
+                comunicador.desconectar();
         });
 
         HBox hBoxBaixo = new HBox(voltar);
@@ -52,7 +58,7 @@ public class CriarPartidaTela {
 
     private void ouvirConexoes(String nickname) {
         try {
-            Comunicacao comunicador = new Comunicacao(TelaInicial.PORTA_PADRAO);
+            comunicador = new Comunicacao(TelaInicial.PORTA_PADRAO);
 
             byte[] mensagemAReceber = new byte[500];
             DatagramPacket pacoteAReceber = new DatagramPacket(mensagemAReceber, mensagemAReceber.length);
@@ -90,8 +96,10 @@ public class CriarPartidaTela {
                     }
                 }
             }
-        } catch (IOException ex) {
-            Logger.getLogger(ConectarTela.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Platform.runLater(() -> {
+                TelaInicial.exibirException(ex);
+            });
         }
     }
 }

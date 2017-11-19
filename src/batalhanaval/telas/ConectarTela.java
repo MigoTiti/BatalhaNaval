@@ -2,12 +2,9 @@ package batalhanaval.telas;
 
 import batalhanaval.enums.ComandosNet;
 import batalhanaval.rede.Comunicacao;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Optional;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -24,6 +21,8 @@ import javafx.scene.text.Text;
 
 public class ConectarTela {
 
+    Comunicacao comunicador;
+    
     public void iniciarTela(String ip, String nickname) {
         Text texto = new Text("Tentando conexão com: " + ip);
         texto.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
@@ -38,6 +37,8 @@ public class ConectarTela {
         Button voltar = new Button("Voltar");
         voltar.setOnAction(event -> {
             TelaInicial.createScene();
+            if (comunicador != null)
+                comunicador.desconectar();
         });
 
         HBox hBoxBaixo = new HBox(voltar);
@@ -55,7 +56,7 @@ public class ConectarTela {
 
     private void conectar(String ip, String nickname) {
         try {
-            Comunicacao comunicador = new Comunicacao();
+            comunicador = new Comunicacao();
             comunicador.setIpAEnviar(InetAddress.getByName(ip));
 
             String mensagemString = ComandosNet.CONECTADO.comando + "&" + nickname + "&";
@@ -94,8 +95,10 @@ public class ConectarTela {
                     });
                 }
             }
-        } catch (IOException ex) {
-            Logger.getLogger(ConectarTela.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Platform.runLater(() -> {
+                TelaInicial.exibirException(ex);
+            });
         }
     }
 }

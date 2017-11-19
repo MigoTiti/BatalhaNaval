@@ -4,14 +4,10 @@ import batalhanaval.telas.TelaInicial;
 import batalhanaval.enums.ComandosNet;
 import batalhanaval.telas.BatalhaTela;
 import batalhanaval.telas.PreparacaoTela;
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 
 public class Comunicacao {
@@ -29,8 +25,10 @@ public class Comunicacao {
             ipAEnviar = null;
             portaAEnviar = batalhanaval.telas.TelaInicial.PORTA_PADRAO;
             vezDoUsuario = false;
-        } catch (SocketException ex) {
-            Logger.getLogger(Comunicacao.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Platform.runLater(() -> {
+                TelaInicial.exibirException(ex);
+            });
         }
     }
 
@@ -41,8 +39,10 @@ public class Comunicacao {
             ipAEnviar = null;
             portaAEnviar = batalhanaval.telas.TelaInicial.PORTA_PADRAO;
             vezDoUsuario = false;
-        } catch (SocketException ex) {
-            Logger.getLogger(Comunicacao.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Platform.runLater(() -> {
+                TelaInicial.exibirException(ex);
+            });
         }
     }
 
@@ -76,8 +76,9 @@ public class Comunicacao {
             StringTokenizer st = new StringTokenizer(respostaString, "&");
             String comando = st.nextToken();
             if (comando.equals(ComandosNet.DESCONECTAR.comando)) {
+                desconectar();
+                enviarMensagem(ComandosNet.DESCONECTAR.comando + "&");
                 Platform.runLater(() -> {
-                    TelaInicial.enviarMensagemErro("O outro jogador foi desconectado. Voltando ao menu principal.");
                     TelaInicial.createScene();
                 });
             } else if (comando.equals(ComandosNet.PRONTO.comando)) {
@@ -138,6 +139,9 @@ public class Comunicacao {
                 System.out.println(comando);
             }
         }
+        
+        socket.close();
+        socket = null;
     }
 
     public String receberMensagem() {
@@ -148,8 +152,10 @@ public class Comunicacao {
             String respostaString = new String(pacoteResposta.getData());
 
             return respostaString;
-        } catch (IOException ex) {
-            Logger.getLogger(Comunicacao.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Platform.runLater(() -> {
+                TelaInicial.exibirException(ex);
+            });
         }
 
         return null;
@@ -160,23 +166,14 @@ public class Comunicacao {
             byte[] mensagem = mensagemString.getBytes();
             DatagramPacket pacoteAEnviar = new DatagramPacket(mensagem, mensagem.length, ipAEnviar, portaAEnviar);
             socket.send(pacoteAEnviar);
-        } catch (IOException ex) {
-            Logger.getLogger(Comunicacao.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Platform.runLater(() -> {
+                TelaInicial.exibirException(ex);
+            });
         }
     }
 
-    @Override
-    public void finalize() {
-        try {
-            if (socket != null) {
-                socket.close();
-            }
-
-            super.finalize();
-            
-            System.err.println("Socket finalizado");
-        } catch (Throwable ex) {
-            Logger.getLogger(Comunicacao.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public void desconectar() {
+        conexaoAberta = false;
     }
 }

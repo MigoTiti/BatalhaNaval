@@ -327,6 +327,7 @@ public class BatalhaTela extends TabuleiroPronto {
             campoAdversarioMatriz = null;
             campoUsuarioMatriz = null;
             comunicador.enviarMensagem(ComandosNet.DESCONECTAR.comando);
+            comunicador.desconectar();
             TelaInicial.createScene();
         });
 

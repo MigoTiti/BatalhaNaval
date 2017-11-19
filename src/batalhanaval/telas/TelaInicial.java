@@ -1,10 +1,9 @@
 package batalhanaval.telas;
 
-import batalhanaval.telas.BatalhaTela;
-import batalhanaval.telas.ConectarTela;
-import batalhanaval.telas.CriarPartidaTela;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.geometry.Insets;
@@ -12,9 +11,13 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -68,7 +71,7 @@ public class TelaInicial extends JApplet {
 
     public static void createScene() {
         BatalhaTela.deletarInstancia();
-        
+
         BorderPane root = new BorderPane();
         VBox vBoxCentro = new VBox();
 
@@ -154,12 +157,44 @@ public class TelaInicial extends JApplet {
         alert.setContentText(mensagem);
         alert.showAndWait();
     }
-    
+
     public static void enviarMensagemInfo(String mensagem) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Info");
         alert.setHeaderText(null);
         alert.setContentText(mensagem);
+        alert.showAndWait();
+    }
+
+    public static void exibirException(Exception ex) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Erro");
+        alert.setHeaderText("Exception");
+        alert.setContentText(ex.getMessage());
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        ex.printStackTrace(pw);
+        String exceptionText = sw.toString();
+
+        Label label = new Label("The exception stacktrace was:");
+
+        TextArea textArea = new TextArea(exceptionText);
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+
+        textArea.setMaxWidth(Double.MAX_VALUE);
+        textArea.setMaxHeight(Double.MAX_VALUE);
+        GridPane.setVgrow(textArea, Priority.ALWAYS);
+        GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+        GridPane expContent = new GridPane();
+        expContent.setMaxWidth(Double.MAX_VALUE);
+        expContent.add(label, 0, 0);
+        expContent.add(textArea, 0, 1);
+
+        alert.getDialogPane().setExpandableContent(expContent);
+
         alert.showAndWait();
     }
 }
