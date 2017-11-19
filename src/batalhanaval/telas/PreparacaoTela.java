@@ -29,9 +29,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
@@ -39,7 +36,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
-import javafx.util.Duration;
 
 public class PreparacaoTela extends TabuleiroPreparacao {
 
@@ -59,10 +55,13 @@ public class PreparacaoTela extends TabuleiroPreparacao {
 
     private final Comunicacao comunicador;
     
+    public static final Color COR_BACKGROUND = Color.TRANSPARENT;
+    
     private Rectangle preview;
-    private HBox hBoxVideo;
+    
     private StackPane stackPane;
-
+    private HBox stub;
+    
     private Set<RectangleNavio> navios;
 
     public PreparacaoTela(Comunicacao comunicador) {
@@ -142,25 +141,10 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         HBox hBoxCentro = new HBox(vBoxCentro);
         hBoxCentro.setAlignment(Pos.CENTER);
 
-        MediaPlayer videoBackground = new MediaPlayer(
-                new Media(getVideo().toString())
-        );
-
-        videoBackground.setMute(true);
-        videoBackground.setCycleCount(MediaPlayer.INDEFINITE);
-        videoBackground.play();
-        videoBackground.setStartTime(Duration.seconds(0));
-        videoBackground.setStopTime(Duration.seconds(19));
-
-        MediaView mv = new MediaView(videoBackground);
-        mv.setFitHeight(TAMANHO * TAMANHO_CELULA);
-        mv.setFitWidth(TAMANHO * TAMANHO_CELULA);
-        mv.setPreserveRatio(false);
-
-        hBoxVideo = new HBox(mv);
-        hBoxVideo.setAlignment(Pos.CENTER);
-
-        stackPane = new StackPane(hBoxVideo, hBoxCentro);
+        stub = new HBox(new Rectangle(TAMANHO * TAMANHO_CELULA, TAMANHO * TAMANHO_CELULA, Color.GREY));
+        stub.setAlignment(Pos.CENTER);
+        
+        stackPane = new StackPane(stub, hBoxCentro);
 
         stackPane.setAlignment(Pos.TOP_LEFT);
 
@@ -256,7 +240,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
     }
 
     private RectangleCoordenado gerarRect(int x, int y) {
-        RectangleCoordenado rect = new RectangleCoordenado(x, y, TAMANHO_CELULA - 1, TAMANHO_CELULA - 1, Color.TRANSPARENT);
+        RectangleCoordenado rect = new RectangleCoordenado(x, y, TAMANHO_CELULA - 1, TAMANHO_CELULA - 1, COR_BACKGROUND);
         rect.setStroke(Color.ORANGE);
         rect.setStrokeWidth(1);
 
@@ -278,7 +262,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                         preview.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
                         stackPane.getChildren().add(preview);
                         preview.toBack();
-                        hBoxVideo.toBack();
+                        stub.toBack();
                         break;
                     case 4:
                         preview = new Rectangle(rect.getLayoutX(), rect.getLayoutY(), (TAMANHO_CELULA - 1) * tamanho, TAMANHO_CELULA - 1);
@@ -287,7 +271,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                         preview.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
                         stackPane.getChildren().add(preview);
                         preview.toBack();
-                        hBoxVideo.toBack();
+                        stub.toBack();
                         break;
                     case 3:
                         preview = new Rectangle(rect.getLayoutX(), rect.getLayoutY(), (TAMANHO_CELULA - 1) * tamanho, TAMANHO_CELULA - 1);
@@ -296,7 +280,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                         preview.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
                         stackPane.getChildren().add(preview);
                         preview.toBack();
-                        hBoxVideo.toBack();
+                        stub.toBack();
                         break;
                     case 2:
                         preview = new Rectangle(rect.getLayoutX(), rect.getLayoutY(), (TAMANHO_CELULA - 1) * tamanho, TAMANHO_CELULA - 1);
@@ -305,7 +289,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                         preview.setTranslateY(TAMANHO_CELULA * (rect.getyCoordenada() + 3));
                         stackPane.getChildren().add(preview);
                         preview.toBack();
-                        hBoxVideo.toBack();
+                        stub.toBack();
                         break;
                 }
             } else {
@@ -357,13 +341,13 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x][y + 4].setFill(Color.RED);
 
                                     campoMatriz[x + 1][y].setOcupado(false);
-                                    campoMatriz[x + 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 1][y].setFill(COR_BACKGROUND);
                                     campoMatriz[x + 2][y].setOcupado(false);
-                                    campoMatriz[x + 2][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 2][y].setFill(COR_BACKGROUND);
                                     campoMatriz[x + 3][y].setOcupado(false);
-                                    campoMatriz[x + 3][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 3][y].setFill(COR_BACKGROUND);
                                     campoMatriz[x + 4][y].setOcupado(false);
-                                    campoMatriz[x + 4][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 4][y].setFill(COR_BACKGROUND);
                                     novo.getTransforms().add(new Rotate(novo.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -379,13 +363,13 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x - 4][y].setFill(Color.RED);
 
                                     campoMatriz[x][y + 1].setOcupado(false);
-                                    campoMatriz[x][y + 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 1].setFill(COR_BACKGROUND);
                                     campoMatriz[x][y + 2].setOcupado(false);
-                                    campoMatriz[x][y + 2].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 2].setFill(COR_BACKGROUND);
                                     campoMatriz[x][y + 3].setOcupado(false);
-                                    campoMatriz[x][y + 3].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 3].setFill(COR_BACKGROUND);
                                     campoMatriz[x][y + 4].setOcupado(false);
-                                    campoMatriz[x][y + 4].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 4].setFill(COR_BACKGROUND);
                                     novo.getTransforms().add(new Rotate(novo.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -401,13 +385,13 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x][y - 4].setFill(Color.RED);
 
                                     campoMatriz[x - 1][y].setOcupado(false);
-                                    campoMatriz[x - 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 1][y].setFill(COR_BACKGROUND);
                                     campoMatriz[x - 2][y].setOcupado(false);
-                                    campoMatriz[x - 2][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 2][y].setFill(COR_BACKGROUND);
                                     campoMatriz[x - 3][y].setOcupado(false);
-                                    campoMatriz[x - 3][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 3][y].setFill(COR_BACKGROUND);
                                     campoMatriz[x - 4][y].setOcupado(false);
-                                    campoMatriz[x - 4][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 4][y].setFill(COR_BACKGROUND);
                                     novo.getTransforms().add(new Rotate(novo.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -423,13 +407,13 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x + 4][y].setFill(Color.RED);
 
                                     campoMatriz[x][y - 1].setOcupado(false);
-                                    campoMatriz[x][y - 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 1].setFill(COR_BACKGROUND);
                                     campoMatriz[x][y - 2].setOcupado(false);
-                                    campoMatriz[x][y - 2].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 2].setFill(COR_BACKGROUND);
                                     campoMatriz[x][y - 3].setOcupado(false);
-                                    campoMatriz[x][y - 3].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 3].setFill(COR_BACKGROUND);
                                     campoMatriz[x][y - 4].setOcupado(false);
-                                    campoMatriz[x][y - 4].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 4].setFill(COR_BACKGROUND);
                                     novo.getTransforms().add(new Rotate(novo.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -465,11 +449,11 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x][y + 3].setFill(Color.RED);
 
                                     campoMatriz[x + 1][y].setOcupado(false);
-                                    campoMatriz[x + 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 1][y].setFill(COR_BACKGROUND);
                                     campoMatriz[x + 2][y].setOcupado(false);
-                                    campoMatriz[x + 2][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 2][y].setFill(COR_BACKGROUND);
                                     campoMatriz[x + 3][y].setOcupado(false);
-                                    campoMatriz[x + 3][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 3][y].setFill(COR_BACKGROUND);
                                     novo2.getTransforms().add(new Rotate(novo2.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -483,11 +467,11 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x - 3][y].setFill(Color.RED);
 
                                     campoMatriz[x][y + 1].setOcupado(false);
-                                    campoMatriz[x][y + 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 1].setFill(COR_BACKGROUND);
                                     campoMatriz[x][y + 2].setOcupado(false);
-                                    campoMatriz[x][y + 2].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 2].setFill(COR_BACKGROUND);
                                     campoMatriz[x][y + 3].setOcupado(false);
-                                    campoMatriz[x][y + 3].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 3].setFill(COR_BACKGROUND);
                                     novo2.getTransforms().add(new Rotate(novo2.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -501,11 +485,11 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x][y - 3].setFill(Color.RED);
 
                                     campoMatriz[x - 1][y].setOcupado(false);
-                                    campoMatriz[x - 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 1][y].setFill(COR_BACKGROUND);
                                     campoMatriz[x - 2][y].setOcupado(false);
-                                    campoMatriz[x - 2][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 2][y].setFill(COR_BACKGROUND);
                                     campoMatriz[x - 3][y].setOcupado(false);
-                                    campoMatriz[x - 3][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 3][y].setFill(COR_BACKGROUND);
                                     novo2.getTransforms().add(new Rotate(novo2.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -519,11 +503,11 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x + 3][y].setFill(Color.RED);
 
                                     campoMatriz[x][y - 1].setOcupado(false);
-                                    campoMatriz[x][y - 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 1].setFill(COR_BACKGROUND);
                                     campoMatriz[x][y - 2].setOcupado(false);
-                                    campoMatriz[x][y - 2].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 2].setFill(COR_BACKGROUND);
                                     campoMatriz[x][y - 3].setOcupado(false);
-                                    campoMatriz[x][y - 3].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 3].setFill(COR_BACKGROUND);
                                     novo2.getTransforms().add(new Rotate(novo2.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -558,9 +542,9 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x][y + 2].setFill(Color.RED);
 
                                     campoMatriz[x + 1][y].setOcupado(false);
-                                    campoMatriz[x + 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 1][y].setFill(COR_BACKGROUND);
                                     campoMatriz[x + 2][y].setOcupado(false);
-                                    campoMatriz[x + 2][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 2][y].setFill(COR_BACKGROUND);
                                     novo3.getTransforms().add(new Rotate(novo3.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -572,9 +556,9 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x - 2][y].setFill(Color.RED);
 
                                     campoMatriz[x][y + 1].setOcupado(false);
-                                    campoMatriz[x][y + 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 1].setFill(COR_BACKGROUND);
                                     campoMatriz[x][y + 2].setOcupado(false);
-                                    campoMatriz[x][y + 2].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 2].setFill(COR_BACKGROUND);
                                     novo3.getTransforms().add(new Rotate(novo3.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -586,9 +570,9 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x][y - 2].setFill(Color.RED);
 
                                     campoMatriz[x - 1][y].setOcupado(false);
-                                    campoMatriz[x - 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 1][y].setFill(COR_BACKGROUND);
                                     campoMatriz[x - 2][y].setOcupado(false);
-                                    campoMatriz[x - 2][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 2][y].setFill(COR_BACKGROUND);
                                     novo3.getTransforms().add(new Rotate(novo3.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -600,9 +584,9 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x + 2][y].setFill(Color.RED);
 
                                     campoMatriz[x][y - 1].setOcupado(false);
-                                    campoMatriz[x][y - 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 1].setFill(COR_BACKGROUND);
                                     campoMatriz[x][y - 2].setOcupado(false);
-                                    campoMatriz[x][y - 2].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 2].setFill(COR_BACKGROUND);
                                     novo3.getTransforms().add(new Rotate(novo3.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -635,7 +619,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x][y + 1].setFill(Color.RED);
 
                                     campoMatriz[x + 1][y].setOcupado(false);
-                                    campoMatriz[x + 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x + 1][y].setFill(COR_BACKGROUND);
                                     novo4.getTransforms().add(new Rotate(novo4.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -645,7 +629,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x - 1][y].setFill(Color.RED);
 
                                     campoMatriz[x][y + 1].setOcupado(false);
-                                    campoMatriz[x][y + 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y + 1].setFill(COR_BACKGROUND);
                                     novo4.getTransforms().add(new Rotate(novo4.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -655,7 +639,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x][y - 1].setFill(Color.RED);
 
                                     campoMatriz[x - 1][y].setOcupado(false);
-                                    campoMatriz[x - 1][y].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x - 1][y].setFill(COR_BACKGROUND);
                                     novo4.getTransforms().add(new Rotate(novo4.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -665,7 +649,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
                                     campoMatriz[x + 1][y].setFill(Color.RED);
 
                                     campoMatriz[x][y - 1].setOcupado(false);
-                                    campoMatriz[x][y - 1].setFill(Color.TRANSPARENT);
+                                    campoMatriz[x][y - 1].setFill(COR_BACKGROUND);
                                     novo4.getTransforms().add(new Rotate(novo4.girar(), rect.getLayoutX() + 20, rect.getLayoutY() + 22));
                                 }
                                 break;
@@ -693,10 +677,6 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         });
 
         return rect;
-    }
-
-    private URL getVideo() {
-        return getClass().getResource("recursos/background.mp4");
     }
 
     private URL getPortaAvioes() {

@@ -19,19 +19,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
 
 public class BatalhaTela extends TabuleiroPronto {
-
-    private HBox hBoxVideoUsuario;
-    private HBox hBoxVideoAdversario;
 
     private int contagemUsuario;
     private int contagemAdversario;
@@ -40,6 +33,7 @@ public class BatalhaTela extends TabuleiroPronto {
 
     public static final Color COR_ACERTO = Color.RED;
     public static final Color COR_ERRO = Color.BLUE;
+    public static final Color COR_BACKGROUND = Color.GREY;
 
     private Comunicacao comunicador;
     
@@ -131,33 +125,7 @@ public class BatalhaTela extends TabuleiroPronto {
         HBox hBoxCampoAdversario = new HBox(vBoxCampoAdversario);
         hBoxCampoAdversario.setAlignment(Pos.CENTER);
 
-        MediaPlayer videoBackground = new MediaPlayer(
-                new Media(getVideo().toString())
-        );
-
-        videoBackground.setMute(true);
-        videoBackground.setCycleCount(MediaPlayer.INDEFINITE);
-        videoBackground.play();
-        videoBackground.setStartTime(Duration.seconds(0));
-        videoBackground.setStopTime(Duration.seconds(19));
-
-        MediaView videoBackgroundUsuario = new MediaView(videoBackground);
-        videoBackgroundUsuario.setFitHeight(TAMANHO * TAMANHO_CELULA);
-        videoBackgroundUsuario.setFitWidth(TAMANHO * TAMANHO_CELULA);
-        videoBackgroundUsuario.setPreserveRatio(false);
-
-        MediaView videoBackgroundAdversario = new MediaView(videoBackground);
-        videoBackgroundAdversario.setFitHeight(TAMANHO * TAMANHO_CELULA);
-        videoBackgroundAdversario.setFitWidth(TAMANHO * TAMANHO_CELULA);
-        videoBackgroundAdversario.setPreserveRatio(false);
-
-        hBoxVideoUsuario = new HBox(videoBackgroundUsuario);
-        hBoxVideoUsuario.setAlignment(Pos.CENTER);
-
-        hBoxVideoAdversario = new HBox(videoBackgroundAdversario);
-        hBoxVideoAdversario.setAlignment(Pos.CENTER);
-
-        campoUsuarioPronto.getChildren().addAll(hBoxVideoUsuario, hBoxCampoUsuario);
+        campoUsuarioPronto.getChildren().addAll(hBoxCampoUsuario);
 
         Platform.runLater(() -> {
             naviosUsuario.stream().forEach((rectangleNavio) -> {
@@ -170,7 +138,7 @@ public class BatalhaTela extends TabuleiroPronto {
 
                 campoUsuarioMatriz[x][y].setOcupado(true);
 
-                Color corAPreencher = Color.TRANSPARENT;
+                Color corAPreencher = COR_BACKGROUND;
 
                 campoUsuarioMatriz[x][y].setFill(corAPreencher);
 
@@ -307,7 +275,7 @@ public class BatalhaTela extends TabuleiroPronto {
             });
         });
 
-        campoAdversarioPronto.getChildren().addAll(hBoxVideoAdversario, hBoxCampoAdversario);
+        campoAdversarioPronto.getChildren().addAll(hBoxCampoAdversario);
 
         vboxUsuario.getChildren().addAll(helpText, campoUsuarioPronto);
         vboxAdversario.getChildren().addAll(helpText2, campoAdversarioPronto);
@@ -338,7 +306,7 @@ public class BatalhaTela extends TabuleiroPronto {
     }
 
     private RectangleCoordenado gerarRect(int x, int y, boolean usuario) {
-        RectangleCoordenado rect = new RectangleCoordenado(x, y, TAMANHO_CELULA - 1, TAMANHO_CELULA - 1, Color.TRANSPARENT);
+        RectangleCoordenado rect = new RectangleCoordenado(x, y, TAMANHO_CELULA - 1, TAMANHO_CELULA - 1, COR_BACKGROUND);
         rect.setStroke(Color.YELLOW);
         rect.setStrokeWidth(1);
         
@@ -364,10 +332,6 @@ public class BatalhaTela extends TabuleiroPronto {
 
     private void atirar(int x, int y) {
         comunicador.enviarMensagem(ComandosNet.JOGADA.comando + "&" + x + "&" + y);
-    }
-
-    private URL getVideo() {
-        return getClass().getResource("recursos/background.mp4");
     }
 
     public int getContagemAdversario() {
