@@ -3,10 +3,9 @@ package batalhanaval.telas;
 import batalhanaval.BatalhaNavalMain;
 import batalhanaval.enums.ComandosNet;
 import batalhanaval.rede.Comunicacao;
-import static batalhanaval.rede.Comunicacao.socket;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.geometry.Insets;
@@ -23,7 +22,7 @@ import javafx.scene.text.Text;
 
 public class CriarPartidaTela {
 
-    public void iniciarTela() {
+    public void iniciarTela(String nickname) {
         Text texto = new Text("Aguardando oponente");
         texto.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
 
@@ -36,7 +35,6 @@ public class CriarPartidaTela {
 
         Button voltar = new Button("Voltar");
         voltar.setOnAction(event -> {
-            Comunicacao.desconectar();
             BatalhaNavalMain.createScene();
         });
 
@@ -49,30 +47,50 @@ public class CriarPartidaTela {
 
         new Thread(() -> {
             System.out.println("Servidor");
-            ouvirConexoes();
+            ouvirConexoes(nickname);
         }).start();
     }
 
-    private static void ouvirConexoes() {
+    private static void ouvirConexoes(String nickname) {
         try {
-            socket = new DatagramSocket(BatalhaNavalMain.PORTA_PADRAO);
+            Comunicacao comunicador = new Comunicacao(BatalhaNavalMain.PORTA_PADRAO);
+
             byte[] mensagemAReceber = new byte[500];
             DatagramPacket pacoteAReceber = new DatagramPacket(mensagemAReceber, mensagemAReceber.length);
-            socket.receive(pacoteAReceber);
+            comunicador.getSocket().receive(pacoteAReceber);
             String mensagemRecebida = new String(pacoteAReceber.getData());
-            
-            Comunicacao.ipAEnviar = pacoteAReceber.getAddress();
-            Comunicacao.portaAEnviar = pacoteAReceber.getPort();
-            
-            System.out.println(mensagemRecebida);
 
-            DatagramPacket pacoteResposta = new DatagramPacket(ComandosNet.CONECTADO.getBytes(), ComandosNet.CONECTADO.getBytes().length, Comunicacao.ipAEnviar, Comunicacao.portaAEnviar);
-            socket.send(pacoteResposta);
+            StringTokenizer st = new StringTokenizer(mensagemRecebida, "&");
+            String comando = st.nextToken();
 
-            new PreparacaoTela().iniciarTela();
-            Comunicacao.vezDoUsuario = true;
-            Comunicacao.conexaoAberta = true;
-            Comunicacao.persistirConexao();
+            comunicador.setIpAEnviar(pacoteAReceber.getAddress());
+            comunicador.setPortaAEnviar(pacoteAReceber.getPort());
+
+            while (true) {
+                if (comando.equals("1")) {
+                    String nickAdversario = st.nextToken();
+                    String resposta;
+
+                    if (nickAdversario.equals(nickname)) {
+                        resposta = ComandosNet.NOME_REPETIDO.comando + "&";
+
+                        comunicador.enviarMensagem(resposta);
+                        mensagemRecebida = comunicador.receberMensagem();
+
+                        st = new StringTokenizer(mensagemRecebida, "&");
+                        comando = st.nextToken();
+                    } else {
+                        resposta = ComandosNet.CONECTADO.comando + "&" + nickname + "&" + nickAdversario + "&";
+                        comunicador.enviarMensagem(resposta);
+
+                        new PreparacaoTela(comunicador).iniciarTela(nickname, nickAdversario);
+                        comunicador.setVezDoUsuario(true);
+                        comunicador.setConexaoAberta(true);
+                        comunicador.persistirConexao();
+                        break;
+                    }
+                }
+            }
         } catch (IOException ex) {
             Logger.getLogger(ConectarTela.class.getName()).log(Level.SEVERE, null, ex);
         }

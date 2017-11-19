@@ -42,6 +42,8 @@ public class BatalhaTela extends TabuleiroPronto {
     public static final Color COR_ACERTO = Color.RED;
     public static final Color COR_ERRO = Color.BLUE;
 
+    private Comunicacao comunicador;
+    
     private static BatalhaTela instancia;
     
     private BatalhaTela() {
@@ -55,7 +57,12 @@ public class BatalhaTela extends TabuleiroPronto {
         return instancia;
     }
     
-    public void iniciarTela(Set<RectangleNavio> naviosUsuario, int contagem) {
+    public static void deletarInstancia() {
+        instancia = null;
+    }
+    
+    public void iniciarTela(Set<RectangleNavio> naviosUsuario, int contagem, String nickname, String nicknameAdversario, Comunicacao comunicador) {
+        this.comunicador = comunicador;
         contagemUsuario = contagem;
         contagemAdversario = contagem;
 
@@ -70,11 +77,11 @@ public class BatalhaTela extends TabuleiroPronto {
         vboxUsuario.setAlignment(Pos.CENTER);
         vboxAdversario.setAlignment(Pos.CENTER);
 
-        Text helpText = new Text(BatalhaNavalMain.nickName);
+        Text helpText = new Text(nickname);
         helpText.setFill(Color.BLACK);
         helpText.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
 
-        Text helpText2 = new Text("Adversário");
+        Text helpText2 = new Text(nicknameAdversario);
         helpText2.setFill(Color.BLACK);
         helpText2.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
 
@@ -320,8 +327,7 @@ public class BatalhaTela extends TabuleiroPronto {
         voltar.setOnAction(event -> {
             campoAdversarioMatriz = null;
             campoUsuarioMatriz = null;
-            Comunicacao.enviarMensagem(ComandosNet.DESCONECTAR.comando);
-            Comunicacao.desconectar();
+            comunicador.enviarMensagem(ComandosNet.DESCONECTAR.comando);
             BatalhaNavalMain.createScene();
         });
 
@@ -342,10 +348,10 @@ public class BatalhaTela extends TabuleiroPronto {
                     BatalhaNavalMain.enviarMensagemErro("Você perdeu");
                 } else if (contagemAdversario == 0) {
                     BatalhaNavalMain.enviarMensagemErro("Você ganhou");
-                } else if (Comunicacao.vezDoUsuario) {
+                } else if (comunicador.isVezDoUsuario()) {
                     if (!campoAdversarioMatriz[x][y].getFill().equals(COR_ACERTO) && !campoAdversarioMatriz[x][y].getFill().equals(COR_ERRO)) {
-                        Comunicacao.enviarMensagem(atirar(x, y));
-                        Comunicacao.vezDoUsuario = false;
+                        atirar(x, y);
+                        comunicador.setVezDoUsuario(false);
                     } else {
                         BatalhaNavalMain.enviarMensagemErro("Escolha um lugar vazio para atirar");
                     }
@@ -358,8 +364,8 @@ public class BatalhaTela extends TabuleiroPronto {
         return rect;
     }
 
-    private String atirar(int x, int y) {
-        return ComandosNet.JOGADA.comando + "&" + x + "&" + y;
+    private void atirar(int x, int y) {
+        comunicador.enviarMensagem(ComandosNet.JOGADA.comando + "&" + x + "&" + y);
     }
 
     private URL getVideo() {

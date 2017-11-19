@@ -8,10 +8,17 @@ public class TabuleiroPronto {
     protected GridPane campoUsuario;
     protected GridPane campoAdversario;
     
-    public static RectangleCoordenado[][] campoUsuarioMatriz;
-    public static RectangleCoordenado[][] campoAdversarioMatriz;
+    protected RectangleCoordenado[][] campoUsuarioMatriz;
+    protected RectangleCoordenado[][] campoAdversarioMatriz;
     
     public static final int TAMANHO = 10;
     public static final int TAMANHO_CELULA = 40;
-    
+
+    public RectangleCoordenado[][] getCampoUsuarioMatriz() {
+        return campoUsuarioMatriz;
+    }
+
+    public RectangleCoordenado[][] getCampoAdversarioMatriz() {
+        return campoAdversarioMatriz;
+    }
 }

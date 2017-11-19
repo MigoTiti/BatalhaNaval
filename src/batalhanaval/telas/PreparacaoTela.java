@@ -56,16 +56,19 @@ public class PreparacaoTela extends TabuleiroPreparacao {
     private final Text ctContagemText;
     private final Text subContagemText;
 
-    public static boolean pronto = false;
     public static boolean oponentePronto = false;
 
+    private final Comunicacao comunicador;
+    
     Rectangle preview;
     HBox hBoxVideo;
     StackPane stackPane;
 
     Set<RectangleNavio> navios;
 
-    public PreparacaoTela() {
+    public PreparacaoTela(Comunicacao comunicador) {
+        this.comunicador = comunicador;
+        
         paContagem = 1;
         ntContagem = 1;
         ctContagem = 1;
@@ -81,7 +84,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         subContagemText = new Text(" x" + subContagem);
     }
 
-    public void iniciarTela() {
+    public void iniciarTela(String nickname, String nicknameAdversario) {
         BorderPane root = new BorderPane();
 
         HBox hBoxTop = new HBox();
@@ -98,8 +101,8 @@ public class PreparacaoTela extends TabuleiroPreparacao {
         iniciar.setOnAction(evento -> {
             if (paContagem == 0 && ntContagem == 0 && ctContagem == 0 && subContagem == 0) {
                 new Thread(() -> {
-                    Comunicacao.enviarMensagem(ComandosNet.PRONTO.comando);
-                    BatalhaTela.getInstance().iniciarTela(navios, contagemTotal);
+                    comunicador.enviarMensagem(ComandosNet.PRONTO.comando);
+                    BatalhaTela.getInstance().iniciarTela(navios, contagemTotal, nickname, nicknameAdversario, comunicador);
                 }).start();
             } else {
                 BatalhaNavalMain.enviarMensagemErro("Posicione todos os navios");
@@ -108,7 +111,7 @@ public class PreparacaoTela extends TabuleiroPreparacao {
 
         Button voltar = new Button("Sair da partida");
         voltar.setOnAction((ActionEvent) -> {
-            Comunicacao.enviarMensagem(ComandosNet.DESCONECTAR.comando);
+            comunicador.enviarMensagem(ComandosNet.DESCONECTAR.comando);
             BatalhaNavalMain.createScene();
         });
 

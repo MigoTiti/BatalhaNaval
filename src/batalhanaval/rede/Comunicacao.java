@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,13 +16,61 @@ import javafx.application.Platform;
 
 public class Comunicacao {
 
-    public static DatagramSocket socket = null;
-    public static boolean conexaoAberta = false;
-    public static InetAddress ipAEnviar = null;
-    public static int portaAEnviar = batalhanaval.BatalhaNavalMain.PORTA_PADRAO;
-    public static boolean vezDoUsuario = false;
+    private DatagramSocket socket;
+    private boolean conexaoAberta;
+    private InetAddress ipAEnviar;
+    private int portaAEnviar;
+    private boolean vezDoUsuario;
 
-    public static void persistirConexao() {
+    public Comunicacao(int porta) {
+        try {
+            socket = new DatagramSocket(porta);
+            conexaoAberta = false;
+            ipAEnviar = null;
+            portaAEnviar = batalhanaval.BatalhaNavalMain.PORTA_PADRAO;
+            vezDoUsuario = false;
+        } catch (SocketException ex) {
+            Logger.getLogger(Comunicacao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public Comunicacao() {
+        try {
+            socket = new DatagramSocket();
+            conexaoAberta = false;
+            ipAEnviar = null;
+            portaAEnviar = batalhanaval.BatalhaNavalMain.PORTA_PADRAO;
+            vezDoUsuario = false;
+        } catch (SocketException ex) {
+            Logger.getLogger(Comunicacao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void setIpAEnviar(InetAddress ip) {
+        ipAEnviar = ip;
+    }
+
+    public void setPortaAEnviar(int porta) {
+        portaAEnviar = porta;
+    }
+
+    public void setVezDoUsuario(boolean vez) {
+        vezDoUsuario = vez;
+    }
+
+    public void setConexaoAberta(boolean conexao) {
+        conexaoAberta = conexao;
+    }
+
+    public DatagramSocket getSocket() {
+        return socket;
+    }
+
+    public boolean isVezDoUsuario() {
+        return vezDoUsuario;
+    }
+
+    public void persistirConexao() {
         while (conexaoAberta) {
             try {
                 byte[] buffer = new byte[500];
@@ -33,10 +82,9 @@ public class Comunicacao {
                 String comando = st.nextToken();
 
                 if (comando.equals(ComandosNet.DESCONECTAR.comando)) {
-                    desconectar();
                     Platform.runLater(() -> {
                         BatalhaNavalMain.enviarMensagemErro("O outro jogador foi desconectado. Voltando ao menu principal.");
-                        batalhanaval.BatalhaNavalMain.createScene();
+                        BatalhaNavalMain.createScene();
                     });
                 } else if (comando.equals(ComandosNet.PRONTO.comando)) {
                     PreparacaoTela.oponentePronto = true;
@@ -45,9 +93,9 @@ public class Comunicacao {
                         int x = Integer.parseInt(st.nextToken());
                         int y = Integer.parseInt(st.nextToken());
 
-                        if (BatalhaTela.campoUsuarioMatriz[x][y].isOcupado()) {
+                        if (BatalhaTela.getInstance().getCampoUsuarioMatriz()[x][y].isOcupado()) {
                             Platform.runLater(() -> {
-                                BatalhaTela.campoUsuarioMatriz[x][y].setFill(BatalhaTela.COR_ACERTO);
+                                BatalhaTela.getInstance().getCampoUsuarioMatriz()[x][y].setFill(BatalhaTela.COR_ACERTO);
                                 BatalhaTela.getInstance().decrementarContagemUsuario();
 
                                 if (BatalhaTela.getInstance().getContagemUsuario() == 0) {
@@ -59,7 +107,7 @@ public class Comunicacao {
                             enviarMensagem(ComandosNet.REPORTAR_JOGADA.comando + "&" + x + "&" + y + "&a");
                         } else {
                             Platform.runLater(() -> {
-                                BatalhaTela.campoUsuarioMatriz[x][y].setFill(BatalhaTela.COR_ERRO);
+                                BatalhaTela.getInstance().getCampoUsuarioMatriz()[x][y].setFill(BatalhaTela.COR_ERRO);
                                 BatalhaNavalMain.enviarMensagemInfo("Sua vez");
                             });
                             enviarMensagem(ComandosNet.REPORTAR_JOGADA.comando + "&" + x + "&" + y + "&e");
@@ -75,7 +123,7 @@ public class Comunicacao {
 
                     if (st.nextToken().equals("a")) {
                         Platform.runLater(() -> {
-                            BatalhaTela.campoAdversarioMatriz[x][y].setFill(BatalhaTela.COR_ACERTO);
+                            BatalhaTela.getInstance().getCampoAdversarioMatriz()[x][y].setFill(BatalhaTela.COR_ACERTO);
                             BatalhaTela.getInstance().decrementarContagemAdversario();
 
                             if (BatalhaTela.getInstance().getContagemAdversario() == 0) {
@@ -84,10 +132,10 @@ public class Comunicacao {
                         });
                     } else {
                         Platform.runLater(() -> {
-                            BatalhaTela.campoAdversarioMatriz[x][y].setFill(BatalhaTela.COR_ERRO);
+                            BatalhaTela.getInstance().getCampoAdversarioMatriz()[x][y].setFill(BatalhaTela.COR_ERRO);
                         });
                     }
-                } else if (comando.equals(ComandosNet.NAO_PRONTO.comando)){
+                } else if (comando.equals(ComandosNet.NAO_PRONTO.comando)) {
                     Platform.runLater(() -> {
                         BatalhaNavalMain.enviarMensagemErro("O outro jogador ainda não está pronto");
                     });
@@ -101,21 +149,42 @@ public class Comunicacao {
         }
     }
 
-    public static void desconectar() {
-        if (socket != null)
-            socket.close();
-        socket = null;
-        conexaoAberta = false;
-        ipAEnviar = null;
-        portaAEnviar = batalhanaval.BatalhaNavalMain.PORTA_PADRAO;
+    public String receberMensagem() {
+        try {
+            byte[] buffer = new byte[500];
+            DatagramPacket pacoteResposta = new DatagramPacket(buffer, buffer.length);
+            socket.receive(pacoteResposta);
+            String respostaString = new String(pacoteResposta.getData());
+
+            return respostaString;
+        } catch (IOException ex) {
+            Logger.getLogger(Comunicacao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
     }
 
-    public static void enviarMensagem(String mensagemString) {
+    public void enviarMensagem(String mensagemString) {
         try {
             byte[] mensagem = mensagemString.getBytes();
-            DatagramPacket pacoteAEnviar = new DatagramPacket(mensagem, mensagem.length, Comunicacao.ipAEnviar, Comunicacao.portaAEnviar);
+            DatagramPacket pacoteAEnviar = new DatagramPacket(mensagem, mensagem.length, ipAEnviar, portaAEnviar);
             socket.send(pacoteAEnviar);
         } catch (IOException ex) {
+            Logger.getLogger(Comunicacao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void finalize() {
+        try {
+            if (socket != null) {
+                socket.close();
+            }
+
+            super.finalize();
+            
+            System.err.println("Socket finalizado");
+        } catch (Throwable ex) {
             Logger.getLogger(Comunicacao.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

@@ -1,5 +1,6 @@
 package batalhanaval;
 
+import batalhanaval.telas.BatalhaTela;
 import batalhanaval.telas.ConectarTela;
 import batalhanaval.telas.CriarPartidaTela;
 import java.awt.BorderLayout;
@@ -31,7 +32,6 @@ public class BatalhaNavalMain extends JApplet {
     private static final int JFXPANEL_HEIGHT_INT = 700;
     public static final int PORTA_PADRAO = 12345;
     public static JFXPanel fxContainer;
-    public static String nickName;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -67,6 +67,8 @@ public class BatalhaNavalMain extends JApplet {
     }
 
     public static void createScene() {
+        BatalhaTela.deletarInstancia();
+        
         BorderPane root = new BorderPane();
         VBox vBoxCentro = new VBox();
 
@@ -104,12 +106,12 @@ public class BatalhaNavalMain extends JApplet {
         Text helpText6 = new Text("Nome de usuário: ");
         helpText6.setFill(Color.BLACK);
         helpText6.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
-        TextField nomeUsuario = new TextField("MigoTiti");
+        TextField nomeUsuario = new TextField();
 
         Button acharPartidaButton = new Button("Conectar");
         acharPartidaButton.setOnAction((ActionEvent) -> {
             if (nomeUsuario.getText() != null && !nomeUsuario.getText().equals("")) {
-                nickName = nomeUsuario.getText();
+                String nickName = nomeUsuario.getText();
                 new ConectarTela().iniciarTela(ipServidorPrimeiroOcteto.getText() + "." + ipServidorSegundoOcteto.getText() + "." + ipServidorTerceiroOcteto.getText() + "." + ipServidorQuartoOcteto.getText(), nickName);
             } else {
                 enviarMensagemErro("Digite um nome de usuário");
@@ -128,9 +130,8 @@ public class BatalhaNavalMain extends JApplet {
         Button criarPartidaButton = new Button("Criar partida");
         criarPartidaButton.setOnAction((event -> {
             if (nomeUsuario.getText() != null && !nomeUsuario.getText().equals("")) {
-                nickName = nomeUsuario.getText();
-                //new BatalhaTela().iniciarTela();
-                new CriarPartidaTela().iniciarTela();
+                String nickName = nomeUsuario.getText();
+                new CriarPartidaTela().iniciarTela(nickName);
             } else {
                 enviarMensagemErro("Digite um nome de usuário");
             }
